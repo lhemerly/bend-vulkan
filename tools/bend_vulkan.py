@@ -9,6 +9,7 @@ completion: a passing run only reports that the CPU checks succeeded.
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import subprocess
 import sys
@@ -17,6 +18,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TIMEOUT = 600.0
+
+REQUIRED_TOOLS = ("cargo", "bun", "clang")
+INSTALL_HINTS = {
+    "cargo": "install Rust/Cargo from https://rustup.rs and ensure `cargo` is on PATH",
+    "bun": "install Bun from https://bun.sh and ensure `bun` is on PATH",
+    "clang": "install Clang (for example `apt-get install clang`) and ensure `clang` is on PATH",
+}
 
 
 class CheckError(RuntimeError):
@@ -83,6 +91,63 @@ def check_f32(timeout: float) -> None:
         print(f"[cpu] cleaned up temporary output: {base}", flush=True)
 
 
+def diagnose_tools() -> dict:
+    # PATH-only lookup: never executes any compiler and never dispatches GPU work.
+    tools = {}
+    for name in REQUIRED_TOOLS:
+        path = shutil.which(name)
+        tools[name] = {"available": path is not None, "path": path}
+    return tools
+
+
+def doctor_payload() -> dict:
+    tools = diagnose_tools()
+    missing = [name for name in REQUIRED_TOOLS if not tools[name]["available"]]
+    return {
+        "command": "doctor",
+        "cpu_only": True,
+        "gpu_dispatches": 0,
+        "ok": not missing,
+        "missing": missing,
+        "tools": tools,
+    }
+
+
+def doctor_json() -> int:
+    payload = doctor_payload()
+    print(json.dumps(payload, indent=2, sort_keys=True), flush=True)
+    return 0 if payload["ok"] else 1
+
+
+def doctor_human() -> int:
+    print(
+        "[cpu] doctor: CPU-only prerequisite check; no compiler is executed and no GPU work is performed.",
+        flush=True,
+    )
+    tools = diagnose_tools()
+    missing = []
+    for name in REQUIRED_TOOLS:
+        info = tools[name]
+        if info["available"]:
+            print(f"[cpu] {name}: available at {info['path']}", flush=True)
+        else:
+            missing.append(name)
+            print(f"[cpu] {name}: MISSING - {INSTALL_HINTS[name]}", flush=True)
+    print(
+        "[cpu] scope: this snapshot is CPU-only; Vulkan is never dispatched and backend completion is never claimed.",
+        flush=True,
+    )
+    if missing:
+        print(
+            f"[cpu] FAILED: missing prerequisites: {', '.join(missing)}",
+            file=sys.stderr,
+            flush=True,
+        )
+        return 1
+    print("[cpu] SUCCESS: all required CPU prerequisites are available.", flush=True)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="bend_vulkan.py",
@@ -104,6 +169,15 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_TIMEOUT,
         help=f"per-command timeout in seconds (default: {DEFAULT_TIMEOUT:g})",
     )
+    doctor = sub.add_parser(
+        "doctor",
+        help="diagnose whether the required CPU prerequisites are on PATH without running them",
+    )
+    doctor.add_argument(
+        "--json",
+        action="store_true",
+        help="print a machine-readable JSON report on stdout instead of human text",
+    )
     return parser
 
 
@@ -122,6 +196,8 @@ def main(argv=None) -> int:
                 flush=True,
             )
             return 0
+        if args.command == "doctor":
+            return doctor_json() if args.json else doctor_human()
     except CheckError as exc:
         print(f"[cpu] FAILED: {exc}", file=sys.stderr, flush=True)
         return 1

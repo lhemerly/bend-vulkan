@@ -42,6 +42,8 @@ passing run never claims backend completion.
 ```sh
 python3 tools/bend_vulkan.py check           # cargo test, warnings-denied clippy, emit-u32 tests
 python3 tools/bend_vulkan.py check --f32     # the above, then the F32 CPU parity end-to-end check
+python3 tools/bend_vulkan.py doctor          # human report: are cargo, bun and clang on PATH?
+python3 tools/bend_vulkan.py doctor --json   # same, as valid JSON on stdout
 ```
 
 `check` requires `cargo` on `PATH`; `check --f32` additionally requires `bun` and
@@ -52,6 +54,17 @@ temporary output afterwards. Python checks run through `sys.executable`. A
 missing prerequisite, nonzero command exit or timeout stops the run immediately
 with a nonzero status; per-command timeouts default to 600s (`--timeout`).
 `tools/test_bend_vulkan_cli.py` is a focused subprocess test suite for this CLI.
+
+`doctor` only inspects `PATH` (via `shutil.which`): it never executes a compiler
+and never performs GPU work, so it is safe to run from any working directory.
+The human report lists each required tool with its resolved path or an
+actionable install hint, plus the CPU-only scope. With `--json`, stdout is a
+single valid JSON document containing `cpu_only: true`, `gpu_dispatches: 0`,
+and a `tools` mapping of `cargo`, `bun` and `clang` to
+`{"available": bool, "path": string|null}` (plus `ok` and `missing`). The exit
+status is `0` only when all required tools are on `PATH`, and the JSON stays
+valid even when prerequisites are missing; those failures are reported on
+stderr only in human mode.
 
 ## Evidence and limitations
 
