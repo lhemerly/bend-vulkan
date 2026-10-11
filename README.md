@@ -32,6 +32,27 @@ compiler bytes, builds both executables, and checks upstream and CPU-reference
 results at one and two threads. It does not dispatch Vulkan. Generated GPU
 configuration must be regenerated after relocation and remains non-admitted by default.
 
+### Portable CPU CLI
+
+`tools/bend_vulkan.py` is a Python 3 standard-library entry point that runs the
+existing CPU checks sequentially from the repository root, independent of the
+caller's working directory. It is CPU-only: it never dispatches Vulkan and a
+passing run never claims backend completion.
+
+```sh
+python3 tools/bend_vulkan.py check           # cargo test, warnings-denied clippy, emit-u32 tests
+python3 tools/bend_vulkan.py check --f32     # the above, then the F32 CPU parity end-to-end check
+```
+
+`check` requires `cargo` on `PATH`; `check --f32` additionally requires `bun` and
+`clang`. The F32 check runs `fork/tests/check_f32_e2e.py` against
+`evidence/upstream/tests/run/gpu_trig.bend` with a fresh temporary output
+directory that does not exist before the script creates it, and removes that
+temporary output afterwards. Python checks run through `sys.executable`. A
+missing prerequisite, nonzero command exit or timeout stops the run immediately
+with a nonzero status; per-command timeouts default to 600s (`--timeout`).
+`tools/test_bend_vulkan_cli.py` is a focused subprocess test suite for this CLI.
+
 ## Evidence and limitations
 
 Historical RX 6600 XT `gpu_trig` runs passed four bounded calls, printed `78542`,
