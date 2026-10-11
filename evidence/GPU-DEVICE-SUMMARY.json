@@ -1,0 +1,34 @@
+{
+  "historical_device": "RX 6600 XT",
+  "receipts": [
+    {
+      "native_exit": 0,
+      "output_sha256": "d3c2519f8827529eb913401e540b542e30510fdd75bef8f9e4d38101253f36fe",
+      "validated_words": 772,
+      "clean_native_exit_and_EOF": true,
+      "receipt_sha256": "98bd2253ef058715bf686071d8201635b6be4a8605965c7e43d2c3c5ab109e7e"
+    },
+    {
+      "native_exit": 0,
+      "output_sha256": "bf6a62cf1203cd00788f0be397a8946402dc5421b1952b8b954efc07c46fd1fc",
+      "validated_words": 772,
+      "clean_native_exit_and_EOF": true,
+      "receipt_sha256": "25e0147df103927e9e826614f076099a69844df89ece99fb6329a88322339b49"
+    },
+    {
+      "native_exit": 0,
+      "output_sha256": "d3c2519f8827529eb913401e540b542e30510fdd75bef8f9e4d38101253f36fe",
+      "validated_words": 772,
+      "clean_native_exit_and_EOF": true,
+      "receipt_sha256": "467769b5443712e365658217c26cd15dbef4bbcd518f5fdd69efd072be7b164c"
+    },
+    {
+      "native_exit": 0,
+      "output_sha256": "bf6a62cf1203cd00788f0be397a8946402dc5421b1952b8b954efc07c46fd1fc",
+      "validated_words": 772,
+      "clean_native_exit_and_EOF": true,
+      "receipt_sha256": "25e0147df103927e9e826614f076099a69844df89ece99fb6329a88322339b49"
+    }
+  ],
+  "scope": "Four historical bounded gpu_trig calls; all 772 words validated per call. No publication-time GPU run."
+}

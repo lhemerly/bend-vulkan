@@ -1,0 +1,48 @@
+// Separate CPU prototype; leaves the reviewed Vulkan emitter unchanged.
+import * as fs from 'node:fs';import * as path from 'node:path';
+import {createHash} from 'node:crypto';
+import * as Bend from '../evidence/upstream/bend.ts';
+import * as Capture from './compiler/capture_f32.ts';
+import {f32Shader} from './compiler/f32_shader';
+import {routingTables,type RoutingPlan} from './compiler/routing_f32.ts';
+const [source,output]=process.argv.slice(2);const file=path.resolve(source),out=path.resolve(output);
+if(fs.existsSync(out))throw Error('output directory must be new');
+if(fs.readFileSync(file,'utf8').split('\n').filter(s=>/^\s*import\b/.test(s)).some(s=>s.trim()!=='import Base'))throw Error('local Base-only source');
+const book=Bend.book_nil();await Bend.book_load(book,file,'',new Map());Bend.book_valid(book);if(book.hols)throw Error('unchecked holes');
+const baseline=Capture.compile_book(book);const emitted=Capture.f32_book(book);
+const plan=emitted.routing as RoutingPlan;const text=JSON.stringify(plan,null,2)+'\n';
+const sha=createHash('sha256').update(text).digest('hex');
+const declaration='OUTLINE Term corpus_eval(u64* H, Term t) {';
+const yielded='    u64 tl = task_tail(t);';
+const pending='    if ((u32)H[tl + 1] != 0) {';
+const selection='  const char* why = gpu != 0 && BANGS != 0 ? gpu_probe() : "";';
+for(const a of [declaration,yielded,pending,selection])if(emitted.c.split(a).length!==2)throw Error('pinned routing anchor mismatch');
+const mode=`  const char* routing_mode=getenv("BEND_FORK_TRANSPORT");
+  if(routing_mode && *routing_mode) {
+    if(strcmp(routing_mode,"cpu-reference"))err_fail("routing: only explicit CPU-reference transport is implemented; GPU unavailable");
+    if(gpu==1)err_fail("routing: CPU-reference conflicts with --gpu on");
+    gpu=0;
+  }
+  if(gpu!=0)err_fail("routing: CPU prototype requires --gpu off; GPU dispatch disabled");
+`;
+const intercept=`
+    const char* mode=getenv("BEND_FORK_TRANSPORT");
+    if(mode && *mode && routing_root((u32)term_aux(t))>=0) {
+      t=routing_reference(e,t);if(t==0)break;continue;
+    }
+`;
+const check=`
+      const char* mode=getenv("BEND_FORK_TRANSPORT");
+      if(mode && *mode)routing_pending(H,t);
+`;
+const runtime=fs.readFileSync(new URL('./runtime/cpu_routing_f32.c',import.meta.url),'utf8');
+const c=emitted.c.replace(declaration,routingTables(plan,sha)+runtime+'\n'+declaration)
+ .replace(yielded,yielded+intercept).replace(pending,pending+check).replace(selection,mode+selection);
+fs.mkdirSync(out);fs.writeFileSync(out+'/default.c',baseline);fs.writeFileSync(out+'/program.c',c);
+fs.writeFileSync(out+'/routing-plan.json',text);
+fs.writeFileSync(out+'/caller-identity.json',JSON.stringify({schema:plan.schema,routing_plan_sha256:sha,gateways:plan.gateways,program_sha256:createHash('sha256').update(c).digest('hex')},null,2)+'\n');
+
+const floatPlan=JSON.stringify(emitted.plan,null,2)+"\n";fs.writeFileSync(out+"/f32-plan.json",floatPlan);fs.writeFileSync(out+"/f32.comp",f32Shader(emitted.plan));
+const digest=(s:string)=>createHash('sha256').update(s).digest('hex');
+fs.writeFileSync(out+'/source-identity.json',JSON.stringify({schema:'bend-f32-source-preparation-v1',admitted:false,source_sha256:digest(fs.readFileSync(file,'utf8')),compiler_sha256:digest(fs.readFileSync(new URL('./compiler/capture_f32.ts',import.meta.url),'utf8')),f32_plan_sha256:digest(floatPlan),routing_plan_sha256:digest(text),shader_sha256:digest(f32Shader(emitted.plan)),routing_program_sha256:digest(emitted.c),default_program_sha256:digest(baseline)},null,2)+'\n');
+fs.writeFileSync(out+'/routing.c',emitted.c);

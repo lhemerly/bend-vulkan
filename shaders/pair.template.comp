@@ -1,0 +1,92 @@
+#version 450
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#pragma use_vulkan_memory_model
+// Generated expressions/task IDs come from checked pinned Bend segments.
+// Finite alternating completion-order test, not a general scheduler.
+layout(local_size_x=128) in;
+layout(std430,binding=0) devicecoherent buffer Words { uint w[]; };
+const uint FID_AFFINE=@AFFINE_FID@u,FID_PAIR_J2=@JOIN_FID@u;
+const uint ARENA=24u,REM=30u;
+uint acquireWord(uint i){return atomicLoad(w[i],gl_ScopeDevice,gl_StorageSemanticsBuffer,gl_SemanticsAcquire);}
+uint relaxedWord(uint i){return atomicLoad(w[i],gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);}
+void releaseWord(uint i,uint v){atomicStore(w[i],v,gl_ScopeDevice,gl_StorageSemanticsBuffer,gl_SemanticsRelease);}
+void firstError(uint code){atomicCompSwap(w[4],0u,code,gl_ScopeDevice,gl_StorageSemanticsBuffer,gl_SemanticsAcquireRelease,gl_StorageSemanticsBuffer,gl_SemanticsAcquire);}
+void phase(){controlBarrier(gl_ScopeWorkgroup,gl_ScopeWorkgroup,gl_StorageSemanticsShared,gl_SemanticsAcquireRelease);}
+uint arg0(uint x){return @ARG0@;}
+uint arg1(uint x){return @ARG1@;}
+uint generated_affine(uint x){return @AFFINE@;}
+uint generated_join(uint a,uint b){return @JOIN@;}
+uint termHigh(uint fid){return (5u<<24)|(fid<<8);}
+void complete_task(uint slot){
+    if(acquireWord(5u)!=1u || acquireWord(4u)!=0u || slot>1u)return;
+    uint low=w[44u+2u*slot],high=w[45u+2u*slot];
+    uint expectedLoc=slot==0u?4u:7u;
+    if(low!=expectedLoc || high!=termHigh(FID_AFFINE)){firstError(2u);return;}
+    uint at=ARENA+2u*low;
+    if(w[at+2u]!=0u || w[at+3u]!=termHigh(FID_PAIR_J2) || w[at+4u]!=0u || w[at+5u]!=slot){firstError(2u);return;}
+    uint bit=1u<<slot;
+    uint was=atomicOr(w[7],bit,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+    if((was&bit)!=0u){firstError(3u);return;}
+    uint result;
+    // Execute the task's emitted segment, not a lane-specific arithmetic shortcut.
+    switch((high>>8)&65535u){
+    case FID_AFFINE:result=generated_affine(w[at]);break;
+    default:firstError(2u);return;
+    }
+    w[ARENA+2u*slot]=result;
+    w[ARENA+2u*slot+1u]=0u;
+    uint oldRem=atomicAdd(w[REM],0xffffffffu,gl_ScopeDevice,gl_StorageSemanticsBuffer,gl_SemanticsRelease);
+    atomicAdd(w[16],1u,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+    atomicCompSwap(w[17],0xffffffffu,slot,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+    if(oldRem!=1u && oldRem!=2u){firstError(4u);return;}
+    if(oldRem==1u){
+        if(acquireWord(REM)!=0u){firstError(4u);return;}
+        uint claimed=atomicCompSwap(w[8],0u,1u,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+        if(claimed!=0u){firstError(5u);return;}
+        if(w[28]!=0xffffffffu || w[29]!=0xffffffffu || w[31]!=0u){firstError(2u);return;}
+        uint a=w[ARENA],b=w[ARENA+2u];
+        if(w[ARENA+1u]!=0u || w[ARENA+3u]!=0u){firstError(2u);return;}
+        uint joined;
+        switch((w[at+3u]>>8)&65535u){case FID_PAIR_J2:joined=generated_join(a,b);break;default:firstError(2u);return;}
+        atomicAdd(w[12],1u,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+        w[10]=joined;w[11]=0u;
+        atomicAdd(w[13],1u,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+        releaseWord(9u,2u); // upstream n+1 for one root result.
+    }
+}
+void main(){
+    if(any(notEqual(gl_WorkGroupID,uvec3(0u))) || w.length()<48 || gl_NumSubgroups<2u)return;
+    uint x=w[0],order=w[1],arenaCapacity=w[2],queueCapacity=w[3],repeat=w[22];
+    bool leader=gl_LocalInvocationIndex==0u;
+    bool worker=gl_SubgroupInvocationID==0u && gl_SubgroupID<2u;
+    if(leader){
+        for(uint i=4u;i<22u;i++)w[i]=0u;
+        w[23]=0u;
+        for(uint i=24u;i<48u;i++)w[i]=0u;
+        w[17]=0xffffffffu;w[18]=gl_SubgroupSize;w[19]=gl_NumSubgroups;w[20]=0u;w[21]=1u;
+        if(order>1u || repeat>1u || arenaCapacity>10u || queueCapacity>2u)firstError(6u);
+        else if(arenaCapacity<10u || queueCapacity<2u)firstError(1u);
+        else{
+            // Actual generated task_node layout: join arity2 + cont + idx/rem;
+            // child arity1 + cont + idx/rem. Bounded locs0,4,7, total10u64words.
+            w[24]=4u;w[25]=termHigh(FID_AFFINE);w[26]=7u;w[27]=termHigh(FID_AFFINE);
+            w[28]=0xffffffffu;w[29]=0xffffffffu;w[30]=2u;w[31]=0u;
+            w[32]=arg0(x);w[33]=0u;w[34]=0u;w[35]=termHigh(FID_PAIR_J2);w[36]=0u;w[37]=0u;
+            w[38]=arg1(x);w[39]=0u;w[40]=0u;w[41]=termHigh(FID_PAIR_J2);w[42]=0u;w[43]=1u;
+            w[44]=4u;w[45]=termHigh(FID_AFFINE);w[46]=7u;w[47]=termHigh(FID_AFFINE);
+            w[14]=10u;w[15]=2u;
+        }
+        releaseWord(5u,1u); // publication of constructed task records/error.
+    }
+    phase();
+    bool valid=worker && acquireWord(5u)==1u && acquireWord(4u)==0u;
+    if(valid && gl_SubgroupID==order)complete_task(order);
+    phase();
+    if(valid && gl_SubgroupID==(order^1u))complete_task(order^1u);
+    phase();
+    if(valid && repeat==1u && gl_SubgroupID==order)complete_task(order);
+    phase();
+    // One observer acquires rootdone before reading the root result.
+    if(leader && acquireWord(9u)==2u)w[23]=w[10];
+}

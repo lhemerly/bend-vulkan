@@ -1,0 +1,97 @@
+#version 450
+#extension GL_KHR_memory_scope_semantics : require
+#pragma use_vulkan_memory_model
+// Runtime primitive port for a Bend2-style Vulkan backend: Term ABI + fixed ring (len 4).
+// Upstream: Bend2 v2.0.35, commit 11d483271b46e445b922756d5fd4127a1ea99ae8 (Apache-2.0).
+// Milestone: SPIR-V compile + a deterministic single-invocation fixture. This does NOT
+// execute generated Bend segments, prove memory safety, or prove Vulkan release/acquire
+// visibility or upstream scheduler parity.
+// Assumptions: get/put wrap in u32; the lap marker aliases term bit 63 (RFC = high-word
+// bit 31), so only RFC-clear TAG_TSK terms are queued; errors are sticky, never retried;
+// barriers are issued at uniform control flow only (local_size_x == 1), so no invocation
+// here observes another invocation's publication.
+//
+// Buffer ABI 1 (std430 uint array, 30 words required, written by lane 0):
+//   0 get | 1 put | 2 error | 3..10 slots (4 x low,high) | 11..18 input terms
+//   19..26 restored output terms | 27 final get | 28 final put | 29 final error
+// Slot marker: lap << 31 of the high word; slots start at 0 (opposite of lap(pos 0) == 1).
+
+layout(local_size_x = 1) in;
+layout(std430, binding = 0) devicecoherent buffer RingBuf { uint w[]; };
+
+const uint TAG_TSK = 5u;
+const uint RFC = 0x80000000u;      // term bit 63
+const uint HI_MASK = 0x7FFFFFFFu;  // everything but RFC
+const uint W_GET = 0u, W_PUT = 1u, W_ERR = 2u, W_SLOTS = 3u;
+const uint W_INPUTS = 11u, W_OUTPUTS = 19u, W_FINAL = 27u;
+const uint SLOTS = 4u, SHIFT = 2u;
+const uint ERR_NONE = 0u, ERR_RING1 = 1u, ERR_FIX2 = 2u;
+
+uint lapOf(uint pos) { return (~(pos >> SHIFT)) & 1u; } // len is a power of two
+
+// Scoped atomics keep controls atomic; payload becomes visible only after marker acquire.
+uint loadAcquire(uint at) { return atomicLoad(w[at], gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquire); }
+uint loadRelaxed(uint at) { return atomicLoad(w[at], gl_ScopeDevice, gl_StorageSemanticsNone, gl_SemanticsRelaxed); }
+void storeRelease(uint at, uint value) { atomicStore(w[at], value, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsRelease); }
+void firstError(uint code) { atomicCompSwap(w[W_ERR], ERR_NONE, code, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease, gl_StorageSemanticsBuffer, gl_SemanticsAcquire); }
+
+// Restricted contract: first error is sticky; invalid tasks do not reserve.
+bool ringPush(uint hi, uint lo) {
+    if (loadAcquire(W_ERR) != ERR_NONE) return false;
+    if ((hi >> 24) != TAG_TSK || (hi & RFC) != 0u) { firstError(ERR_FIX2); return false; }
+    uint pos = atomicAdd(w[W_PUT], 1u, gl_ScopeDevice, gl_StorageSemanticsNone, gl_SemanticsRelaxed);
+    uint get = loadAcquire(W_GET);
+    if (pos - get >= SLOTS) { firstError(ERR_RING1); return false; }
+    uint slot = pos & (SLOTS - 1u);
+    w[W_SLOTS + 2u * slot] = lo;
+    storeRelease(W_SLOTS + 2u * slot + 1u, hi | (lapOf(pos) << 31));
+    return true;
+}
+
+// One consumer owns get. Acquire the highword BEFORE reading lowword.
+bool ringPop(out uint hi, out uint lo) {
+    hi = 0u; lo = 0u;
+    if (loadAcquire(W_ERR) != ERR_NONE) return false;
+    uint get = loadRelaxed(W_GET);
+    if (get == loadRelaxed(W_PUT)) return false;
+    uint slot = get & (SLOTS - 1u);
+    uint mark = loadAcquire(W_SLOTS + 2u * slot + 1u);
+    if ((mark >> 31) != lapOf(get)) return false;
+    lo = w[W_SLOTS + 2u * slot];
+    hi = mark & HI_MASK;
+    storeRelease(W_GET, get + 1u);
+    return true;
+}
+
+void main() {
+    if (any(notEqual(gl_GlobalInvocationID, uvec3(0u)))) return;        // lane 0 owns this fixture only
+    if (w.length() < 30) return;
+    w[W_GET] = 0u; w[W_PUT] = 0u; w[W_ERR] = ERR_NONE;
+    for (uint i = 0u; i < SLOTS; ++i) {
+        w[W_SLOTS + 2u * i] = 0u;
+        w[W_SLOTS + 2u * i + 1u] = 0u;                // lap marker 0 == opposite of lap(0)
+        w[W_OUTPUTS + 2u * i] = 0u;
+        w[W_OUTPUTS + 2u * i + 1u] = 0u;
+    }
+    for (uint i = 0u; i < 3u; ++i) w[W_FINAL + i] = 0u;
+    bool valid = true;
+    for (uint i = 0u; i < SLOTS; ++i) {
+        uint hi = w[W_INPUTS + 2u*i + 1u];
+        valid = valid && ((hi >> 24) == TAG_TSK) && ((hi & RFC) == 0u);
+    }
+    if (!valid) {
+        w[W_ERR] = ERR_FIX2; w[W_FINAL + 2u] = ERR_FIX2; return;
+    }
+    for (uint i = 0u; i < SLOTS; ++i)                 // push four tasks
+        if (!ringPush(w[W_INPUTS + 2u * i + 1u], w[W_INPUTS + 2u * i]) && w[W_ERR] == ERR_NONE)
+            w[W_ERR] = ERR_FIX2;
+    for (uint i = 0u; i < SLOTS; ++i) {               // drain four
+        uint hi, lo;
+        bool ok = ringPop(hi, lo);
+        w[W_OUTPUTS + 2u * i] = lo;                   // inputs are never overwritten
+        w[W_OUTPUTS + 2u * i + 1u] = hi;
+        if (!ok || lo != w[W_INPUTS + 2u * i] || hi != (w[W_INPUTS + 2u * i + 1u] & HI_MASK))
+            if (w[W_ERR] == ERR_NONE) w[W_ERR] = ERR_FIX2;
+    }
+    w[W_FINAL] = w[W_GET]; w[W_FINAL + 1u] = w[W_PUT]; w[W_FINAL + 2u] = w[W_ERR];
+}

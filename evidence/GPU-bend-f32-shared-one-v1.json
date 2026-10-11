@@ -1,0 +1,7 @@
+{
+  "source_sha256": "1d233d6299f224420d6aee5b8ff2bc709f0a3d6dc5a7fcf7ce1c43113f4e278c",
+  "status": "passed",
+  "GPU_calls_attempted": 1,
+  "calls": [],
+  "scope": "Historical bounded hardware correctness; private identity/guard metadata excluded."
+}

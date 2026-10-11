@@ -1,0 +1,12 @@
+#version 450
+// Generated from pinned upstream Bend compiler segment; scalar U32 subset only.
+layout(local_size_x=64) in;
+layout(std430,binding=0) buffer Words { uint w[]; };
+uint generated_segment(uint x) { return ((x * 17u) + 5u); }
+void main() {
+    if (w.length()<1) return;
+    uint count=w[0];
+    if (count==0u || count>4096u || uint(w.length())<1u+2u*count) return;
+    uint i=gl_GlobalInvocationID.x;
+    if(i<count) w[1u+count+i]=generated_segment(w[1u+i]);
+}

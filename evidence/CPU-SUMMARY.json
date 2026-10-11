@@ -1,0 +1,69 @@
+{
+  "schema": "bend-frozen-baseline-reconciliation-v19",
+  "inventory": {
+    "pinned_commit": "11d483271b46e445b922756d5fd4127a1ea99ae8",
+    "all_bend_files": 1680,
+    "publication_bend_files": 1659,
+    "excluded_from_1659": {
+      "bend2/base.bend": 1,
+      "evals/": 20
+    },
+    "publication_by_directory": {
+      "bench": 22,
+      "demos": 50,
+      "tests": 1587
+    },
+    "tests_by_namespace": {
+      "base": 28,
+      "check": 262,
+      "compile": 125,
+      "comptime": 51,
+      "cost": 5,
+      "eval": 39,
+      "flatten": 245,
+      "gfx": 4,
+      "grade": 17,
+      "halt": 36,
+      "import": 61,
+      "io": 154,
+      "page": 23,
+      "parse": 153,
+      "printer": 6,
+      "proof": 93,
+      "reg": 110,
+      "rfc": 9,
+      "run": 96,
+      "show": 8,
+      "spec": 15,
+      "state": 16,
+      "stats": 5,
+      "stuck": 26
+    },
+    "test_gate_static_candidates": {
+      "main_marker": 1424,
+      "expected_negative": 505,
+      "compiled_main_candidate": 876,
+      "check_or_interpret_only_candidates": 711
+    },
+    "warning": "Static candidates are not executed passes. Compiler refusal to print a main and foreign/backend eligibility must be determined by actual upstream gate semantics. Demos may be interactive; benchmark source defaults can be large.",
+    "counting_scope_not_gate_exclusion": "All1680 files remain accounted for;1659 removes base+evals from the example/module tally only, not from validation obligations."
+  },
+  "coverage_status_counts": {
+    "pass-check-verdict-module-context": 32,
+    "pending": 21,
+    "pass-prelude-library-check": 1,
+    "pending-safety-review": 169,
+    "pass-CPU-lanes-default-C-parity": 639,
+    "pass-expected-negative": 493,
+    "pass-check-interpreter": 171,
+    "pass-check-only": 29,
+    "pass-check-interpreter-printer-ineligible": 123,
+    "pass-lane-specific-expected-negative": 2
+  },
+  "accepted_contracts": 1490,
+  "remaining_obligations": 190,
+  "remaining_ordinary_pending": 21,
+  "remaining_safety_review": 169,
+  "source_sha256": "dbea541ef1d267656ad9131c522c23a5ea33ae1388205db27192ee61cb4e136f",
+  "scope": "Historical CPU reconciliation, not rerun during publication; zero inferred GPU coverage."
+}

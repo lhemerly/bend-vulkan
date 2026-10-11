@@ -1,0 +1,101 @@
+#version 450
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_memory_scope_semantics : require
+#pragma use_vulkan_memory_model
+// Bounded single-workgroup publication/reuse litmus; not a general runtime.
+layout(local_size_x = 128) in;
+layout(std430, binding = 0) devicecoherent buffer RingBuf { uint w[]; };
+
+const uint TAG_TSK = 5u;
+const uint RFC = 0x80000000u;      // term bit 63
+const uint HI_MASK = 0x7FFFFFFFu;  // everything but RFC
+const uint W_GET = 0u, W_PUT = 1u, W_ERR = 2u, W_SLOTS = 3u;
+const uint W_INPUTS = 11u, W_OUTPUTS = 19u, W_FINAL = 27u;
+const uint SLOTS = 4u, SHIFT = 2u;
+const uint ERR_NONE = 0u, ERR_RING1 = 1u, ERR_FIX2 = 2u;
+
+uint lapOf(uint pos) { return (~(pos >> SHIFT)) & 1u; } // len is a power of two
+
+// Scoped atomics keep controls atomic; payload becomes visible only after marker acquire.
+uint loadAcquire(uint at) { return atomicLoad(w[at], gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquire); }
+uint loadRelaxed(uint at) { return atomicLoad(w[at], gl_ScopeDevice, gl_StorageSemanticsNone, gl_SemanticsRelaxed); }
+void storeRelease(uint at, uint value) { atomicStore(w[at], value, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsRelease); }
+void firstError(uint code) { atomicCompSwap(w[W_ERR], ERR_NONE, code, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease, gl_StorageSemanticsBuffer, gl_SemanticsAcquire); }
+
+// Restricted contract: first error is sticky; invalid tasks do not reserve.
+bool ringPush(uint hi, uint lo) {
+    if (loadAcquire(W_ERR) != ERR_NONE) return false;
+    if ((hi >> 24) != TAG_TSK || (hi & RFC) != 0u) { firstError(ERR_FIX2); return false; }
+    uint pos = atomicAdd(w[W_PUT], 1u, gl_ScopeDevice, gl_StorageSemanticsNone, gl_SemanticsRelaxed);
+    uint get = loadAcquire(W_GET);
+    if (pos - get >= SLOTS) { firstError(ERR_RING1); return false; }
+    uint slot = pos & (SLOTS - 1u);
+    w[W_SLOTS + 2u * slot] = lo;
+    storeRelease(W_SLOTS + 2u * slot + 1u, hi | (lapOf(pos) << 31));
+    return true;
+}
+
+// One consumer owns get. Acquire the highword BEFORE reading lowword.
+bool ringPop(out uint hi, out uint lo) {
+    hi = 0u; lo = 0u;
+    if (loadAcquire(W_ERR) != ERR_NONE) return false;
+    uint get = loadRelaxed(W_GET);
+    if (get == loadRelaxed(W_PUT)) return false;
+    uint slot = get & (SLOTS - 1u);
+    uint mark = loadAcquire(W_SLOTS + 2u * slot + 1u);
+    if ((mark >> 31) != lapOf(get)) return false;
+    lo = w[W_SLOTS + 2u * slot];
+    hi = mark & HI_MASK;
+    storeRelease(W_GET, get + 1u);
+    return true;
+}
+
+// One producer/consumer, uniform workgroup execution phases. NO Buffer barrier semantics.
+void phase() { controlBarrier(gl_ScopeWorkgroup, gl_ScopeWorkgroup,
+    gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint payloadLow(uint i) { return (i * 1664525u) ^ 0x9e3779b9u; }
+uint payloadHigh(uint i) { return (5u << 24) | ((i & 65535u) << 8) | (i & 255u); }
+void main() {
+    // These decisions are uniform within each workgroup. One WG owns this buffer.
+    if (any(notEqual(gl_WorkGroupID,uvec3(0u)))) return;
+    if (w.length()<44 || w[31]!=4096u || gl_NumSubgroups<2u) return;
+    uint start=w[30], iterations=w[31];
+    bool producer=gl_SubgroupID==0u && gl_SubgroupInvocationID==0u;
+    bool consumer=gl_SubgroupID==1u && gl_SubgroupInvocationID==0u;
+    if(producer) {
+        for(uint j=0u;j<30u;j++) w[j]=0u;
+        for(uint j=32u;j<44u;j++) w[j]=0u;
+        storeRelease(W_GET,start);storeRelease(W_PUT,start);
+        for(uint slot=0u;slot<4u;slot++) {
+            uint pos=start+((slot-start)&3u);
+            storeRelease(W_SLOTS+2u*slot+1u,(1u-lapOf(pos))<<31);
+        }
+        w[40]=gl_SubgroupSize;w[41]=gl_NumSubgroups;w[42]=gl_SubgroupID;
+        storeRelease(W_ERR,0u); // release all initialization before helpers read error acquire.
+    }
+    phase();
+    for(uint i=0u;i<iterations;i++) {
+        if(producer && !ringPush(payloadHigh(i),payloadLow(i))) {
+            atomicAdd(w[32],1u,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+        }
+        phase();
+        if(consumer) {
+            uint hi,lo;
+            w[43]=gl_SubgroupID;
+            bool ok=ringPop(hi,lo);
+            if(!ok || hi!=payloadHigh(i) || lo!=payloadLow(i)) {
+                atomicAdd(w[32],1u,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+                firstError(ERR_FIX2);
+            } else {
+                atomicAdd(w[36],1u,gl_ScopeDevice,gl_StorageSemanticsNone,gl_SemanticsRelaxed);
+                w[38]=lo;w[39]=hi;
+            }
+        }
+        phase(); // consumer get release precedes producer's next get acquire.
+    }
+    if(producer) {
+        storeRelease(33u,loadAcquire(W_GET));storeRelease(34u,loadAcquire(W_PUT));
+        storeRelease(35u,loadAcquire(W_ERR));
+        uint slot=(start+iterations-1u)&3u;storeRelease(37u,loadAcquire(W_SLOTS+2u*slot+1u));
+    }
+}

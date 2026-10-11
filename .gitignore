@@ -1,0 +1,13 @@
+/target/
+__pycache__/
+*.pyc
+*.spv
+*.spvasm
+*.zip
+*.tar
+*.library.json
+/.env*
+/evidence/*/
+!/evidence/upstream/
+/evidence/upstream/**/*.stdout
+/evidence/upstream/**/*.stderr
