@@ -105,6 +105,26 @@ class CliTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("cargo", result.stderr)
 
+    def test_check_accepts_finite_positive_timeout(self):
+        write_fake(self.bindir, "cargo", "FAKE_CARGO_EXIT")
+        result = self.run_cli(["check", "--timeout", "5"], self.env())
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_check_rejects_nonpositive_timeout(self):
+        for value in ("0", "-1", "-600"):
+            with self.subTest(value=value):
+                result = self.run_cli(["check", "--timeout", value], self.env())
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("--timeout", result.stderr)
+
+    def test_check_rejects_nonfinite_timeout(self):
+        for value in ("nan", "inf", "-inf"):
+            with self.subTest(value=value):
+                result = self.run_cli(["check", f"--timeout={value}"], self.env())
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("--timeout", result.stderr)
+                self.assertIn("finite", result.stderr)
+
     def test_f32_missing_bun_fails(self):
         write_fake(self.bindir, "cargo", "FAKE_CARGO_EXIT")
         write_fake(self.bindir, "clang", "FAKE_CLANG_EXIT")

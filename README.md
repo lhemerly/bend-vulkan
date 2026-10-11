@@ -20,6 +20,19 @@ Requires Linux, Python 3, Rust/Cargo, Bun and Clang. Shader preparation also nee
 glslangValidator, spirv-val and Vulkan development headers/loader. No third-party
 Rust dependencies are required. Tool versions are not locked across this research snapshot.
 
+The canonical local and CI commands are the repository CLI and its regression
+suite. CI (`.github/workflows/cpu.yml`) runs `check` and the CLI tests on
+`ubuntu-latest` after checkout, with read-only `contents` permission:
+
+```sh
+python3 tools/bend_vulkan.py check        # local + CI: cargo test, warnings-denied clippy, emit-u32 tests
+python3 tools/bend_vulkan.py check --f32  # local only: the above plus the F32 CPU parity end-to-end check
+python3 tools/test_bend_vulkan_cli.py     # local + CI: CLI regression suite
+```
+
+`check` runs the following offline Rust checks and emitter test in the same order;
+they can still be run individually without the CLI:
+
 ```sh
 CARGO_BUILD_JOBS=1 cargo test --offline
 CARGO_BUILD_JOBS=1 cargo clippy --offline --all-targets -- -D warnings
@@ -31,6 +44,11 @@ The last output directory must not exist. It regenerates C, compares ordinary
 compiler bytes, builds both executables, and checks upstream and CPU-reference
 results at one and two threads. It does not dispatch Vulkan. Generated GPU
 configuration must be regenerated after relocation and remains non-admitted by default.
+
+These commands are CPU-only verification. A green local run or CI job proves only
+that the CPU Rust checks, emitter test and (for `--f32`) the F32 CPU parity check
+passed; it is not GPU/Vulkan execution, performance or full-language coverage
+evidence, and it never claims backend completion.
 
 ### Portable CPU CLI
 

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -167,7 +168,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--timeout",
         type=float,
         default=DEFAULT_TIMEOUT,
-        help=f"per-command timeout in seconds (default: {DEFAULT_TIMEOUT:g})",
+        help=(
+            "per-command timeout in seconds; must be finite and positive "
+            f"(default: {DEFAULT_TIMEOUT:g})"
+        ),
     )
     doctor = sub.add_parser(
         "doctor",
@@ -185,8 +189,10 @@ def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
     try:
         if args.command == "check":
-            if args.timeout <= 0:
-                raise CheckError("--timeout must be positive")
+            if not math.isfinite(args.timeout) or args.timeout <= 0:
+                raise CheckError(
+                    f"--timeout must be a finite positive number of seconds (got {args.timeout!r})"
+                )
             check_core(args.timeout)
             if args.f32:
                 print("[cpu] optional F32 CPU parity end-to-end check", flush=True)
