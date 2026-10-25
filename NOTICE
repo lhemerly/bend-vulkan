@@ -1,4 +1,4 @@
-Bend Vulkan runtime primitives (experimental)
+Bend Vulkan backend (experimental)
 
 Derived protocol/layout: bendlang/bend Bend2 2.0.35
 Pinned commit: 11d483271b46e445b922756d5fd4127a1ea99ae8
@@ -9,4 +9,6 @@ Upstream license: Apache License 2.0.
 Rust and GLSL primitive drafts generated using verified free OpenCode
 space-bunny-free, then reviewed and checked locally. Any local corrections
 are listed in evidence/VALIDATION.md. This is not an upstream-supported
-backend, runs only one checked scalar U32 segment through an adapter, and is not a proof checker.
+backend and is not a proof checker. The original adapter handled a checked scalar
+U32 segment. The general backend added later lowers the pinned compiler's
+device C runtime to Vulkan while retaining upstream attribution and licensing.

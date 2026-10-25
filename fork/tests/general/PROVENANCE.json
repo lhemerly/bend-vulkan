@@ -1,0 +1,318 @@
+{
+  "commit": "11d483271b46e445b922756d5fd4127a1ea99ae8",
+  "license": "Apache-2.0",
+  "sources": [
+    {
+      "file": "gpu_mark.bend",
+      "upstream_path": "tests/run/gpu_mark.bend",
+      "upstream_sha256": "5e8e3f3ab78a411fa2f91ffe5a027d207fb16e69763c65e1d4e525ac4ab0c499",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "gpu_trig.bend",
+      "upstream_path": "tests/run/gpu_trig.bend",
+      "upstream_sha256": "662666270b2d10daa292dcb8a1157f99f7db3a313f36185e18e165359bf36001",
+      "adaptation": "unchanged"
+    },
+    {
+      "file": "array_fork.bend",
+      "upstream_path": "tests/run/array_fork.bend",
+      "upstream_sha256": "8bed7ef93fcd6eeb964ca7ee3c87b9fbe3e2e576716ad647e4e6de265962352f",
+      "adaptation": "unchanged"
+    },
+    {
+      "file": "array_atomic_fadd.bend",
+      "upstream_path": "tests/run/array_atomic_fadd.bend",
+      "upstream_sha256": "077641b1cb37f81803ee48192f13c0c89b2592bef42eb502fe0bb62614957d82",
+      "adaptation": "unchanged"
+    },
+    {
+      "file": "array_redirect_race.bend",
+      "upstream_path": "tests/run/array_redirect_race.bend",
+      "upstream_sha256": "cc4d705a34090e0131ac38abf908c3696c7fc94b97a62cf1377cc1f85b254b36",
+      "adaptation": "unchanged"
+    },
+    {
+      "file": "closures_hof.bend",
+      "upstream_path": "tests/run/closures_hof.bend",
+      "upstream_sha256": "995334f3b7925f6d12a19cc84d1353db05736d9ebde158accdf9c9621991f059",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "fork_shapes.bend",
+      "upstream_path": "tests/run/fork_shapes.bend",
+      "upstream_sha256": "483f418ebe90271e82afec7943a6145333ae1d377f7aa6f91b8c615c41b9a29e",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "nested_tuples_records.bend",
+      "upstream_path": "tests/run/nested_tuples_records.bend",
+      "upstream_sha256": "5834399a906b602668fb1d6b60bd2fa38059a028dcc5a38d1db33194bc21430b",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "nat_native.bend",
+      "upstream_path": "tests/run/nat_native.bend",
+      "upstream_sha256": "aac3f56702e9fbbb7ac9867d30597f98fc989ce8c8dabb229cc49416c2b6890f",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "wide_record.bend",
+      "upstream_path": "tests/run/wide_record.bend",
+      "upstream_sha256": "b6a5b4965becc941ae2c82c4109dac1395da6ee35acb3f27d5956fa3a4a33c5f",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "list_map_fold_ops.bend",
+      "upstream_path": "tests/run/list_map_fold_ops.bend",
+      "upstream_sha256": "8be67f14479cf6c3572f7079bb463f5e10236fbbf8d6e7691aefe1243d1b4dd1",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "bst_insert.bend",
+      "upstream_path": "tests/run/bst_insert.bend",
+      "upstream_sha256": "88a0f65526e35c53e5b806f15dfdf700d5b91a78fd30fb22b67167f09a693cc1",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "graph_bfs.bend",
+      "upstream_path": "tests/run/graph_bfs.bend",
+      "upstream_sha256": "89f015d4af3100cc7a0b75093f34c59a10ba5b1c314f6294c5d52bec7997c6d2",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "array_boxed_get.bend",
+      "upstream_path": "tests/run/array_boxed_get.bend",
+      "upstream_sha256": "2f997297d8600b2785a1a05e04ba2013746020403e354daf6fff59f152d1071e",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "array_poly_elem.bend",
+      "upstream_path": "tests/run/array_poly_elem.bend",
+      "upstream_sha256": "800c4c17363a2f4b278c48c636a88d0134bec9aa836296be85abd309ba7c531d",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "float_arithmetic.bend",
+      "upstream_path": "tests/run/float_arithmetic.bend",
+      "upstream_sha256": "7516af85c298776c712a1577a053a96941d623853a47d1356f6282378a46ff57",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "float_specials.bend",
+      "upstream_path": "tests/run/float_specials.bend",
+      "upstream_sha256": "e5cfe83f9550847dac7b9cf7f10abb444df2fa872c195455f58c335c089051d7",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "word_div_mod.bend",
+      "upstream_path": "tests/run/word_div_mod.bend",
+      "upstream_sha256": "a900f26ba8322d2b4c67aa1b2e44087694f44982610f4eef73ce08a62980330a",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "array_fill_fold.bend",
+      "upstream_path": "tests/run/array_fill_fold.bend",
+      "upstream_sha256": "cf73c937f8ac131a3df32728073ab8fdb8e7cffdfbce371ccec42564b495ccb3",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "array_size.bend",
+      "upstream_path": "tests/run/array_size.bend",
+      "upstream_sha256": "327fddb82da45b164802369d45376a051800da5dc9d91cb1cb5213cbaa8449a2",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "array_split_join.bend",
+      "upstream_path": "tests/run/array_split_join.bend",
+      "upstream_sha256": "c0b5288ba9530a3179d0c30a7b5fe0153653490afd8f96cb7719a89c55981081",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "array_wrap_index.bend",
+      "upstream_path": "tests/run/array_wrap_index.bend",
+      "upstream_sha256": "3f4ec0359ae14e9c645ac6e8d446e0b331bc24f241721820e3de1e57472575bb",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "axiom_whitelist_no_warning.bend",
+      "upstream_path": "tests/run/axiom_whitelist_no_warning.bend",
+      "upstream_sha256": "d456d0d85dac651b86a795df6445c975c45ce1d92347f2cdf0d6544c5471862f",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "binary_search.bend",
+      "upstream_path": "tests/run/binary_search.bend",
+      "upstream_sha256": "6e500d20da61daf8e74ddae6d52320be545ef38ec37d34f20e33044cc10975e7",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "bit_walking.bend",
+      "upstream_path": "tests/run/bit_walking.bend",
+      "upstream_sha256": "3b9d64e1894968bed496a8c18d6590a1a9c6951fe6d00fcbe7d0ee9cb2b90e2f",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "bubble_sort_array.bend",
+      "upstream_path": "tests/run/bubble_sort_array.bend",
+      "upstream_sha256": "050d32856af52f2749ccaeeb03bca423e0128025a3557001a785e699d774249d",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "computed_match.bend",
+      "upstream_path": "tests/run/computed_match.bend",
+      "upstream_sha256": "24a76d454fe43e12569f13620b3db6d3ae14cb2c97505d236048898eb41f9780",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "concat_operator_sugar.bend",
+      "upstream_path": "tests/run/concat_operator_sugar.bend",
+      "upstream_sha256": "98287b5537bf0f9d78f0f1bb6343612043f03410080044afa728d20e5d7d82dc",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "evening_program.bend",
+      "upstream_path": "tests/run/evening_program.bend",
+      "upstream_sha256": "b254a68ad0208b8a5f388d72095633cd8fc119adf40d45f5621e93f37e7b4f71",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "expr_interpreter.bend",
+      "upstream_path": "tests/run/expr_interpreter.bend",
+      "upstream_sha256": "74bdcbabe870bff14d0e9247a44a5687671e7d26ba17543198ccb222d9217d4e",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "flat_copy_share.bend",
+      "upstream_path": "tests/run/flat_copy_share.bend",
+      "upstream_sha256": "b3fac924a6851da2939bfc1a7ce022e19e0b122feae05fd25b14dc1129173285",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "float_text_roundtrip.bend",
+      "upstream_path": "tests/run/float_text_roundtrip.bend",
+      "upstream_sha256": "722a7d4404bdaed9b53ae85c0759cd0c0a0cabfcbea7b96388fcf16fad6b53c5",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "fn_capture_owns.bend",
+      "upstream_path": "tests/run/fn_capture_owns.bend",
+      "upstream_sha256": "5e3b574fa94b09517b05572e999abf3740c2977d2be89a1e7f24100ec36bc082",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "fuel_loops.bend",
+      "upstream_path": "tests/run/fuel_loops.bend",
+      "upstream_sha256": "83fca7f396d179308575a5e0bdb9d3541691e1d656a00a8303fa4d9a14d4e484",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "if_elif_desugar.bend",
+      "upstream_path": "tests/run/if_elif_desugar.bend",
+      "upstream_sha256": "f1dd60fba9e717bfef0b4be6051ef3061d97919d5d9ddad62fb7e1e21d552ed6",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "insertion_sort.bend",
+      "upstream_path": "tests/run/insertion_sort.bend",
+      "upstream_sha256": "b9c7fb065540a201866ec07a45cbc06e850d4f2e294b35bbfeb09a183f906ca5",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "list_string_lookups.bend",
+      "upstream_path": "tests/run/list_string_lookups.bend",
+      "upstream_sha256": "3df46a95ed2fe83826c094dbc7b5e3f971a83085b515484b743f48c0cd8eeb30",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "map_set_ops.bend",
+      "upstream_path": "tests/run/map_set_ops.bend",
+      "upstream_sha256": "60966d2aa182c2aabf20eb63270f57c7d8c5f2dc56872e7fed54dab34940c8c6",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "matrix_multiply_array.bend",
+      "upstream_path": "tests/run/matrix_multiply_array.bend",
+      "upstream_sha256": "0e206adeff52dee5b9026bd3deda8bad5acb5d4d15a79cd1b4baecd1aa3e56a6",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "matrix_tuples.bend",
+      "upstream_path": "tests/run/matrix_tuples.bend",
+      "upstream_sha256": "4c1201a40a3ef21fd7d984a761f3a637deaf9efb0d98ed8fb5be060b983182a6",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "nat_add_infix.bend",
+      "upstream_path": "tests/run/nat_add_infix.bend",
+      "upstream_sha256": "57f0345474e5c9be3ef1be13c4535f4b0e2cc29d7944cda57243a92340de06bd",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "nat_overflow.bend",
+      "upstream_path": "tests/run/nat_overflow.bend",
+      "upstream_sha256": "8004dc6d43642ec742482ac2f15df4bf90e35e43e50ea67442341e311b1e1afa",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "overuse_clone.bend",
+      "upstream_path": "tests/run/overuse_clone.bend",
+      "upstream_sha256": "a575a15e8b093fbd1dc3b5089af807a0a9647066a70842e11e1e113469b86ac6",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "rle_roundtrip.bend",
+      "upstream_path": "tests/run/rle_roundtrip.bend",
+      "upstream_sha256": "ce4083dab9a8022b2c8867a30802113735917229341cecb8ce18ff9ac2e33989",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "sieve_eratosthenes.bend",
+      "upstream_path": "tests/run/sieve_eratosthenes.bend",
+      "upstream_sha256": "0006885b54f8a7896586b394ec358c02ef6cffc04422be6e08e3d6952ef2c68d",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "spare_reuse.bend",
+      "upstream_path": "tests/run/spare_reuse.bend",
+      "upstream_sha256": "4224eb6597d1670902c355f056b8a11cb22bb052c0b4b6ff69422c62e9b38b25",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "state_machine.bend",
+      "upstream_path": "tests/run/state_machine.bend",
+      "upstream_sha256": "4bfa1bb41de3da228cd9d76ebf22fd230d18776f94e3150f62ec16f4ba389862",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "string_algorithms.bend",
+      "upstream_path": "tests/run/string_algorithms.bend",
+      "upstream_sha256": "b20ca36f67f1eba88ee4890ba9eb659b0b5f963da644b83e9c3f8c33224ea418",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "word_arithmetic.bend",
+      "upstream_path": "tests/run/word_arithmetic.bend",
+      "upstream_sha256": "73db0427fca1c2c79db2c84141434b92f06b2bc96a84b0563a14ce37a00af9c5",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "word_bitwise_literals.bend",
+      "upstream_path": "tests/run/word_bitwise_literals.bend",
+      "upstream_sha256": "b13f8dd1a7ea3736bbbfb7bc7f03beb26787864f517796ddfd3bdc894a30b925",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "word_compare.bend",
+      "upstream_path": "tests/run/word_compare.bend",
+      "upstream_sha256": "63178768370fab58f636d7c140c7eddd84be7ebb7af8af29732316cc95cbb816",
+      "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "word_wrap_chains.bend",
+      "upstream_path": "tests/run/word_wrap_chains.bend",
+      "upstream_sha256": "56284ea3d1dd89589164211a9544795a5680826afa20dad53fa06ee605eca649",
+      "adaptation": "mark main.out as device call"
+    }
+  ]
+}

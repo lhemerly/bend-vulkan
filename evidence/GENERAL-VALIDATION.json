@@ -1,0 +1,2256 @@
+{
+  "schema": "bend-general-vulkan-validation-v1",
+  "upstream_commit": "11d483271b46e445b922756d5fd4127a1ea99ae8",
+  "hardware": {
+    "name": "AMD Radeon RX 6600 XT (RADV NAVI23)",
+    "passed": true,
+    "cases": 56,
+    "host_threads": [
+      1,
+      2
+    ],
+    "contracts": [
+      "default C byte parity with independent pinned compiler",
+      "SPIR-V validation for Vulkan 1.2",
+      "upstream CPU output and exit status",
+      "adapted CPU output and exit status",
+      "actual device output and exit status",
+      "positive device cases require dispatch evidence"
+    ]
+  },
+  "software": {
+    "name": "llvmpipe (LLVM 22.1.4, 256 bits)",
+    "passed_cases": 54,
+    "total_cases": 55,
+    "timeouts": [
+      {
+        "case": "map_set_ops.bend",
+        "deadline_seconds": 300
+      }
+    ],
+    "additional_passed_cases": [
+      "float_corners.bend"
+    ],
+    "note": "The complete map_set_ops case passes on hardware; software timing is not a hardware performance result."
+  },
+  "cases": [
+    {
+      "name": "array_atomic_fadd.bend",
+      "source_sha256": "077641b1cb37f81803ee48192f13c0c89b2592bef42eb502fe0bb62614957d82",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_boxed_get.bend",
+      "source_sha256": "3ebaed4d2b09a7fe22fe9970e11ca46622fb78d5090caf90f89057eb68403bf4",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_fill_fold.bend",
+      "source_sha256": "cee3a516e66242f1b50c77943e976d982afed12b58a14e599e0666662a9b5156",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_fork.bend",
+      "source_sha256": "8bed7ef93fcd6eeb964ca7ee3c87b9fbe3e2e576716ad647e4e6de265962352f",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_poly_elem.bend",
+      "source_sha256": "a88c99a9218967d542d9b650f8d7f1eafaa32917eb6e17ce88ce967ceee3db39",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_redirect_race.bend",
+      "source_sha256": "cc4d705a34090e0131ac38abf908c3696c7fc94b97a62cf1377cc1f85b254b36",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_size.bend",
+      "source_sha256": "685fb1055ee640946dbe19a411f98fd7deda2950b7a29f8ed6de5a3fdc3e628d",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_split_join.bend",
+      "source_sha256": "8c14fe26123a7c99783a7563b5c1d3729211121b5dbb3024443cc7dca515646c",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "array_wrap_index.bend",
+      "source_sha256": "8568c12efd3735aaec763489e7d91a0941de87dee216015681f8b6465496def2",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "axiom_whitelist_no_warning.bend",
+      "source_sha256": "8ea376d7ac24a97801147790bf85d4a2905067549baf4e9514f5c899ec099289",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "binary_search.bend",
+      "source_sha256": "50a96cbe561845372260118bcb9c512314ff4f8235bb63ee9a1320cf9f1a75f6",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "bit_walking.bend",
+      "source_sha256": "dd433ab9c1226d9363c981f50a438d9b74bea14757b7e04cff8bb0adc1c28279",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "bst_insert.bend",
+      "source_sha256": "9ed8198cae2c1a8d85425d1c76c7a727a3c39de162f4fec35f56d2d0eaff1e22",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "bubble_sort_array.bend",
+      "source_sha256": "e1a184b6089f29f43be1097e05a10e08d3a2560dd8a833684c5c5fff5a7a0cdc",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "closure_input.bend",
+      "source_sha256": "3983280eee23a5301e2dd02bf70290b1de34fb5b690fcf706c7f7d76048500f4",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "closures_hof.bend",
+      "source_sha256": "a35bafd293728f8673059544902b80d597d8bfffa43ebe218d384290278c7d18",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "computed_match.bend",
+      "source_sha256": "5ad24039da45bca75e557ba4124a37dbc9823a4c905558a5d41e4d197b60833c",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "concat_operator_sugar.bend",
+      "source_sha256": "e9424f4ff1ba4fb1f85c0dacf8b864108d165d72cc025b197617177a5b071611",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "deep_parallel.bend",
+      "source_sha256": "185dfe83e8b8aee0ba1755483b34a5ce9b8a21a9fafa8939bfef66f5967da45a",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "evening_program.bend",
+      "source_sha256": "da65de30ce8556cd87a023a7f96841acaebe538c8f9d5aab4878d08f204c9fe9",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "expr_interpreter.bend",
+      "source_sha256": "bc27333d135733b6f8d2f38be83993ff22f0f0b471d63a320b88e306386f9237",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "flat_copy_share.bend",
+      "source_sha256": "4ec72d0575a908bc0c4a0f9de1ef9ce60abbc609b7dc4e9336990be28b1337cd",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "float_arithmetic.bend",
+      "source_sha256": "cca1c6d9c2d2bcefd472782f2afc66d2fea45a90cd152ead4de7311090942f13",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "float_corners.bend",
+      "source_sha256": "131a704d406a4cfa09bec53fef913986a56dce0ec2de9c2298215370e8a42b47",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "float_specials.bend",
+      "source_sha256": "6fcce10b0676d7e03f5c1bcb15c6f92137abbece27107835e6d780770a2f0a93",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "float_text_roundtrip.bend",
+      "source_sha256": "556905da5e8c14bc2901621373e1ca616b1cd6048fcc51c74995de04aa833af8",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "fn_capture_owns.bend",
+      "source_sha256": "0c44295ee90a0747c6927bb6ba4a04ec8ca35a27d999ea6603633ce4caf1f8a9",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "fork_shapes.bend",
+      "source_sha256": "d5c52cceab8f0e6d472f4482a72f02e584542567e04fac199734842d00f9e140",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 12
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 12
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "fuel_loops.bend",
+      "source_sha256": "1d1e04ce38ec4a73476a2c422f3215499909566a77de12231acd711ccb3bdec2",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "gpu_mark.bend",
+      "source_sha256": "cf8a46e229e5176658533352b2e710fb8b677adb220f56c160b82dff33304d5a",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 8
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 8
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "gpu_trig.bend",
+      "source_sha256": "662666270b2d10daa292dcb8a1157f99f7db3a313f36185e18e165359bf36001",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "graph_bfs.bend",
+      "source_sha256": "6a41392daaf49f23eaeef2e5e9e3390ccc7c8e8869a1f7ca92af4b40186520d7",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "host_handoffs.bend",
+      "source_sha256": "45b26a696daaf6baf1c6bcd8470d512f534b4d7127ad62749aa1f053e38afa94",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 8
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 8
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "if_elif_desugar.bend",
+      "source_sha256": "d8145042c9bc211187d36a862ab1e3e81d3a37f8dcb1acab5221ffe339f01d84",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "insertion_sort.bend",
+      "source_sha256": "4e7112ced2197925315ee0267d8522b3b6d497fa698659b4961916bfa2c18eb6",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "list_map_fold_ops.bend",
+      "source_sha256": "3d64976e69d1e0275dab991648326974b62d5acead73e75c2a737f015c3c5952",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "list_string_lookups.bend",
+      "source_sha256": "08555247af8fb74f9215307e3a182e9e70d3de3e78336317e072f20e6b1f28ca",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "map_set_ops.bend",
+      "source_sha256": "cda9dca6ade38650078497feb35586395c9d44665b17ac0443539e90cdf55c6d",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "matrix_multiply_array.bend",
+      "source_sha256": "ca554f3b02bee03727545c4f90ee6225997efe9744f850036847c2c7b1721b87",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "matrix_tuples.bend",
+      "source_sha256": "211a82b6f9e7666c80982a2a32484195e53ee44e984f0b9d43c2e710e9278577",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "nat_add_infix.bend",
+      "source_sha256": "d9c8545ba37d01302cca598dcf8388cf2e2836343266b5a6e7003c29123cdc5b",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "nat_native.bend",
+      "source_sha256": "177c340055770c52904d6d5ad8be52e81519d151e0d74b6e8b0a1c48cae0a004",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "nat_overflow.bend",
+      "source_sha256": "26fbfceccbd1230e2d3712e08612f48997354ecef7bd4ffffa002e9571d55b8c",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 1,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 1,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 1,
+          "dispatches": null
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 1,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 1,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 1,
+          "dispatches": null
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "nested_tuples_records.bend",
+      "source_sha256": "979bad6751e37aadfacc3ce26b110999a31fbe7b6416844debb8d29dae0b3381",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "overuse_clone.bend",
+      "source_sha256": "41b4834e9adb9aa483b50313d1fea04486a5c13fc834ff8a2bb1add4e5a8f69a",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "rle_roundtrip.bend",
+      "source_sha256": "851705943520b1df0ba94b707683faf930bec71690dbaf626bdaa11abc5135ff",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "sieve_eratosthenes.bend",
+      "source_sha256": "cf8e8f959297b0f83218c151e8010cdd846ad10b3c1ca6375ea0c9c47aea1221",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "spare_reuse.bend",
+      "source_sha256": "ca90970744c9e08aa0415a8d11676c4a01564628ca3638906433564e4cea4515",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "state_machine.bend",
+      "source_sha256": "4ff6b71eff522f02350230babf74314ef24570d9e8cabd453df15ecd656f1852",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "string_algorithms.bend",
+      "source_sha256": "86c8fdbc1d9622d8b91a4e8c07e7364031619c3f240ca371e1e086b4acdc4d96",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "wide_record.bend",
+      "source_sha256": "a86387060187994ff54dc2eabf2d9080157aa50f68013764c70889a59d0df938",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "word_arithmetic.bend",
+      "source_sha256": "6e47d4aead2914110bf0f82a012a535050b3cb02c2c107475dffd49556d02af8",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "word_bitwise_literals.bend",
+      "source_sha256": "b65073b800b4a4c25578fe68c7681c2af8655221d65329bec7fbf84620d0c966",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "word_compare.bend",
+      "source_sha256": "636381d289182bf2753c93d607264cd7fa525047324887a3dc2585faa28f32ed",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "word_div_mod.bend",
+      "source_sha256": "e5690f4b16f7403f061dc52ccfafb91c9c063747d1a9a53421615080a490fed0",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "word_wrap_chains.bend",
+      "source_sha256": "9eaffc15abfecca97f45fadfae8f3e73786732862a32787a198f7b3bbddb772a",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    }
+  ],
+  "toolchain": {
+    "bun": "1.4.2",
+    "clang": "clang version 22.1.8",
+    "glslang": "Glslang Version: 11:16.4.0",
+    "python": "Python 3.14.7"
+  },
+  "CLI_regression_tests": 7,
+  "legacy_F32_candidate_regression": {
+    "passed": true,
+    "ordinary_C_byte_parity": true,
+    "GPU_dispatches": 0,
+    "admission_remains_disabled": true
+  },
+  "additional_geometry_checks": {
+    "cube_log": 0,
+    "hardware": true,
+    "cases": [
+      "deep_parallel.bend",
+      "list_string_lookups.bend"
+    ],
+    "host_threads": [
+      1,
+      2
+    ],
+    "passed": true
+  },
+  "implementation_files_sha256": {
+    "fork/compiler/capture.ts": "50b28c2ab5cc0cd13ad7af8eb8ef418d0e130e06e73e46ca3c7fa4bd4bcfdd56",
+    "fork/general_cli.ts": "53121893285cd53be0afd94517494d312196fd831db4618027e0781b6ea96877",
+    "fork/runtime/general.comp": "c69962b0e6b19372a0999a2d1330d5220577a7782f54df157606b794579c8eb7",
+    "fork/runtime/vulkan_host.c": "9e39e950b606d38507196c27f804eaf41be7ef4997524b2fec16010355117375",
+    "tools/c_to_glsl.py": "47125a5b5f2d2b2394b1ecf3a6e39a78d57455c18865e69dc127e8f94c3a2760",
+    "tools/bend_vulkan.py": "b5674413e0c5386be405e2ee14c478f7dac783161d50734726c317673766be4b"
+  }
+}

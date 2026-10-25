@@ -70,6 +70,8 @@ type File = {
   vulkan: boolean;
   routing: boolean;
   natCapture: boolean;
+  f32Capture: boolean;
+  f32Inputs: Map<string,Of<"Var">>;
   natMatches: Map<string,{x:HTerm;ret:HTerm;origin?:NatOrigin}[]>;
   natForks: Map<string,{source:Of<'Let'>;join:string;predecessor?:Of<'Var'>}[]>;
   gateways: { fid: string; target: string; argument: string; caller: string }[];
@@ -1345,6 +1347,8 @@ function file_new(book: Bend.Book, js: boolean): File {
     vulkan: false,
     routing: false,
     natCapture: false,
+    f32Capture: false,
+    f32Inputs: new Map(),
     natMatches: new Map(),
     natForks: new Map(),
     gateways: [],
@@ -2128,27 +2132,49 @@ function emit_task(sc: Scope, fid: string, rem: number, words: string[],
 function routing_gateway(sc: Scope, k: Name): string {
   if (k === CLO_APPLY || !FL.book.tlds[k]) die("routing: unknown bang execution");
   const fn = fun_of(k);
-  const argument = fn.live.length === 1 ? ty_adt(fn.live[0][2])?.k : undefined;
+  let argument: string | undefined;
+  let seg: Seg;
+  const name = "ForkGateway$" + FL.gateways.length;
+  const target = seg_fid(k);
+  if (FL.f32Capture) {
+  const kinds = fn.live.map(([, , A])=>ty_adt(A)?.k);
+  if (kinds.join() !== "Nat,F32" || fn.lays.length !== 2
+      || fn.lays[0].ks.join() !== "w64" || fn.lays[1].ks.join() !== "w32"
+      || fn.ret.ks.join() !== "w32"
+      || ty_adt(tele_unbind(FL.book.tlds[k].T).ret)?.k !== "U32")
+    die("routing F32: gateway requires checked (Nat,F32) -> U32");
+  argument = "Nat,F32";
+
+  seg = seg_new(name, fn.ret, ["gateway_depth","gateway_f32_bits"], ["w64","w32"]);
+
+  seg.refs.add(target); seg.executable.add(target); seg.fork = true;
+  FL.parentRules.push({from:seg.fid,to:target});
+  seg.lines.push('if (getenv("BEND_FORK_TRANSPORT") && *getenv("BEND_FORK_TRANSPORT")) {',
+    'err_fail("routing: gateway reached CPU execution; transport bypass refused");', '}',
+    `seq |= fid_nofk(${target}) << 1;`, 'r0 = gateway_depth;', 'r1 = gateway_f32_bits;', `WL_JMP(${target});`);
+  } else {
+  argument = fn.live.length === 1 ? ty_adt(fn.live[0][2])?.k : undefined;
   if (!["Nat", "U32"].includes(argument ?? "") || fn.lays.length !== 1
       || fn.lays[0].ks.length !== 1 || fn.ret.ks.join() !== "w32"
       || ty_adt(tele_unbind(FL.book.tlds[k].T).ret)?.k !== "U32")
     die("routing: gateway requires checked Nat/U32 -> U32");
-  const name = "ForkGateway$" + FL.gateways.length;
-  const seg = seg_new(name, fn.ret, ["gateway_arg"], fn.lays[0].ks);
-  const target = seg_fid(k);
+
+  seg = seg_new(name, fn.ret, ["gateway_arg"], fn.lays[0].ks);
+
   seg.refs.add(target); seg.executable.add(target); seg.fork = true;
   FL.parentRules.push({from:seg.fid,to:target});
   seg.lines.push('if (getenv("BEND_FORK_TRANSPORT") && *getenv("BEND_FORK_TRANSPORT")) {',
     'err_fail("routing: gateway reached CPU execution; transport bypass refused");', '}',
     `seq |= fid_nofk(${target}) << 1;`, 'r0 = gateway_arg;', `WL_JMP(${target});`);
+  }
   FL.segs.push(seg);
   FL.gateways.push({fid:seg.fid,target,argument:argument!,caller:sc.seg.fid});
   return seg.fid;
 }
 
 // CPU routing-only export. It does not lower Nat to a device program.
-export function routing_book(book: Bend.Book, natCapture = false): { c: string; plan: unknown } {
-  const c = compile_book(book, false, true, natCapture);
+export function routing_book(book: Bend.Book, natCapture = false, f32Capture = false): { c: string; plan: unknown } {
+  const c = compile_book(book, false, true, natCapture, f32Capture);
   const segments = [...FL.segs, seg_new(IO_EMIT, BOX, [""]), seg_new(CLO_APPLY, BOX, ["", ""])];
   const nodes = [...segments, ...FL.spins];
   const gateways = new Set(FL.gateways.map(g => g.fid));
@@ -2176,7 +2202,7 @@ export function routing_book(book: Bend.Book, natCapture = false): { c: string; 
     const target=parents.get(p.to);if(!target)continue;
     for(const parent of parents.get(p.from)??[])if(!target.has(parent)){target.add(parent);changed=true;}
   }}while(changed);
-  return {c,plan:{schema:"bend-fork-cpu-routing-v2",depth_limit:5,effect_fixed_point_rounds:rounds,
+  return {c,plan:{schema:FL.f32Capture?"bend-fork-cpu-routing-f32-v1":"bend-fork-cpu-routing-v2",depth_limit:5,effect_fixed_point_rounds:rounds,
     gateways:FL.gateways.filter(g=>segments.some(s=>s.fid===g.fid)).map(g => ({...g,id:segments.findIndex(s=>s.fid===g.fid),root_id:segments.findIndex(s=>s.fid===g.target)})),
     joins:FL.joins.filter(j=>segments.some(s=>s.fid===j.fid)).map(j=>({id:segments.findIndex(s=>s.fid===j.fid),children:j.children.map(c=>({id:segments.findIndex(s=>s.fid===c.fid),index:c.index}))})),
     segments:segments.map((s,id)=>({id,fid:s.fid,arity:s.params.length,kinds:s.ks,
@@ -2334,7 +2360,7 @@ function emit_open(sc: Scope, k: Name): [Scope, Val[]] {
   });
   const seg = seg_new(k, ret, vals.flatMap((v) => v.ws),
     vals.flatMap((v) => v.lay.ks));
-  if(FL.natCapture&&live.length===1&&ty_adt(live[0][2])?.k==='Nat'&&lays[0].ks.join()==='w64')
+  if(FL.natCapture&&[1,2].includes(live.length)&&ty_adt(live[0][2])?.k==='Nat'&&lays[0].ks.join()==='w64')
     vals[0].natOrigin={fid:seg.fid,relation:'input'};
   if (FL.vulkan && !vulkan_u32(k))
     seg.vk.error = "semantic parameter/result type is not U32";
@@ -2653,6 +2679,7 @@ function emit_body(sc: Scope, tm: HTerm, ty0: HTerm | null,
         return emit_body(sc, x.f(t), all.B(t), ers.slice(1), args, dst);
       }
       const o = term_open(x);
+      if(FL.natCapture && ty_adt(all.A)?.k==='F32')FL.f32Inputs.set(sc.seg.fid,o.ps[0]);
       if(FL.natCapture && args[0]?.natPredecessor)sc={...sc,natPred:o.ps[0]};
       bind_uses(sc, o.ps[0], val_hold(sc, val_to(sc, args[0],
         lay_of(all.A)), x.k), [o.b], all.A);
@@ -2963,11 +2990,12 @@ function effect_srcs(ext: string, miss: string): string[] {
 // host's twelfth slot, which keeps rax free for the tail call. WL_LOAD is a
 // ladder, as clang builds the phi cascade of a fallthrough switch in O(n^2).
 
-export function compile_book(book: Bend.Book, vulkan = false, routing = false, natCapture = false): string {
+export function compile_book(book: Bend.Book, vulkan = false, routing = false, natCapture = false, f32Capture = false): string {
   FL = file_new(book, false);
   FL.vulkan = vulkan;
   FL.routing = routing;
   FL.natCapture = natCapture;
+  FL.f32Capture = f32Capture;
   // a pure main's descriptor names constructors of the types it prints,
   // so their datatypes are roots too
   const show = show_main();
@@ -2984,7 +3012,7 @@ export function compile_book(book: Bend.Book, vulkan = false, routing = false, n
     FL.gateways = [];
     FL.joins = [];
     FL.parentRules = [];
-    FL.natMatches.clear();FL.natForks.clear();
+    FL.natMatches.clear();FL.natForks.clear();FL.f32Inputs.clear();
     FL.spins = [];
     FL.img = [];
     for (const [k, tld] of done_defs().reverse()) {
@@ -6702,3 +6730,47 @@ function io_run(m) {
   }
 }
 `.slice(1);
+
+// Separate checked (Nat,F32)->U32 finite fork plan. Original Nat ABI untouched.
+export function f32_book(book:Bend.Book):{c:string;routing:any;plan:any} {
+ Bend.book_valid(book);if(book.hols)die("F32: unchecked holes");const emitted=routing_book(book,true,true);const routing=emitted.plan as any;
+ const final=new Map(FL.segs.map((s,id)=>[s.fid,{s,id}]));
+ const fail=(why:string):never=>die('F32 checked plan: '+why);
+ const segments:any[]=[];const seen=new Set<string>();
+ const value=(tm:HTerm,T:HTerm|null,vars:Map<Of<'Var'>,any>,budget={n:0}):any=>{
+  if(++budget.n>64)fail('expression bound');const[x,ty]=ty_peel(tm,T);
+  if(x.$==='Var'){const v=vars.get(probe_of(x));if(!v)fail('unbound typed expression');return v;}
+  if(x.$==='Lam'){const a=ty_all(ty);if(ty_adt(a.A)?.k!=='F32')fail('non-F32 leaf binder');const o=term_open(x);const next=new Map(vars);next.set(o.ps[0],{type:'F32',op:'arg',index:0});return value(o.b,a.B(o.ps[0]),next,budget);}
+  if(x.$==='Let'&&x.k.length===1){const o=term_open(x);const v=value(x.v[0],ty_ann(x.v[0]),vars,budget);const next=new Map(vars);next.set(o.ps[0],v);return value(o.b,ty,next,budget);}
+  if(x.$==='Ctr'){const[a,u]=ctr_adt(x,ty);if(a.k!=='F32'||u===null)fail('non-F32 literal');return {type:'F32',op:'bits',bits:Number(u)};}
+  const m=term_spine(x);if(m.t.$!=='Ref'||intr_of(m.t.k)===undefined)fail('non-intrinsic expression '+x.$);
+  const op=op_name(m.t.k);const expected=op==='f32_to_u32'?'U32':'F32';if(ty_adt(ty)?.k!==expected)fail('intrinsic type mismatch '+op);
+  if(op==='f32_to_u32'&&m.args.length===1)return {type:'U32',op:'from-f32',value:value(m.args[0],ty_ann(m.args[0]),vars,budget)};
+  if(['f32_sin','f32_cos','f32_tan'].includes(op)&&m.args.length===1)return {type:'F32',op:op.slice(4),value:value(m.args[0],ty_ann(m.args[0]),vars,budget)};
+  if(['f32_add','f32_mul'].includes(op)&&m.args.length===2)return {type:'F32',op:op.slice(4),left:value(m.args[0],ty_ann(m.args[0]),vars,budget),right:value(m.args[1],ty_ann(m.args[1]),vars,budget)};
+  fail('unsupported intrinsic '+op);
+ };
+ const visit=(fid:string):void=>{
+  if(seen.has(fid))return;seen.add(fid);const item=final.get(fid);if(!item)fail('missing final task');const {s,id}=item!;
+  const f=fun_of(s.def);if(f.live.map(([, ,A])=>ty_adt(A)?.k).join()!=='Nat,F32'||s.ks.join()!=='w64,w32'||s.frame!==null||s.ret.ks.join()!=='w32')fail('task signature/layout');
+  const matches=FL.natMatches.get(fid)??[];if(matches.length!==1||matches[0].origin?.fid!==fid||matches[0].origin.relation!=='input')fail('original Nat origin');
+  const{arms,end}=mat_arms(matches[0].x);if(arms.length!==2||term_strip(end).$!=='Efq')fail('Nat arms');
+  const zero=arms.find(([k])=>k==='Zero')?.[1];const fp=FL.f32Inputs.get(fid);if(!zero||!fp)fail('zero/F32 probe');
+  const vars=new Map<Of<'Var'>,any>([[fp,{type:'F32',op:'arg',index:0}]]);
+  const leaf=value(zero,matches[0].ret,vars);if(leaf.type!=='U32'||leaf.op!=='from-f32')fail('leaf result conversion');
+  const events=FL.natForks.get(fid)??[];if(events.length!==1)fail('single successor fork');const event=events[0],o=term_open(event.source);
+  if(event.source.v.length!==2||!event.predecessor)fail('binary guarded fork');
+  const calls=event.source.v.map(term_spine);
+  const children=calls.map((call,slot)=>{
+   if(!call.k||call.b||call.xs.length!==2||term_strip(call.xs[0]).$!=='Var'||probe_of(term_strip(call.xs[0]))!==event.predecessor)fail('guarded Nat child');
+   const child=final.get(seg_fid(call.k!));if(!child)fail('final child identity');
+   const payload=value(call.xs[1],ty_ann(call.xs[1]),vars);if(payload.type!=='F32')fail('typed child payload');return{id:child!.id,slot,payload};
+  });
+  const join=final.get(event.join);const layout=routing.joins.find((j:any)=>j.id===join?.id);
+  if(!join||join.s.ks.join()!=='w32,w32'||join.s.frame!==null||!layout||layout.children.length!==2||children.some(c=>!layout.children.some((x:any)=>x.id===c.id&&x.index===c.slot)))fail('join identity/slots');
+  const jm=term_spine(term_strip(o.b));if(jm.t.$!=='Ref'||op_name(jm.t.k)!=='u32_add'||jm.args.length!==2||jm.args.some((a,i)=>term_strip(a).$!=='Var'||probe_of(term_strip(a))!==o.ps[i]))fail('typed U32 addition join');
+  segments.push({id,fid,leaf,join:join!.id,children});calls.forEach(c=>visit(seg_fid(c.k!)));
+ };
+ const roots=[...new Set<string>(routing.gateways.filter((g:any)=>g.argument==='Nat,F32').map((g:any)=>g.target))];if(!roots.length)fail('no marked root');roots.forEach(visit);
+ return {c:emitted.c,routing,plan:{schema:'bend-nat-f32-fork-v1',roots:roots.map(f=>final.get(f)!.id),depth:5,tasks:63,segments}};
+}

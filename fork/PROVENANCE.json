@@ -1,4 +1,5 @@
 {
+  "record_scope": "Historical bounded-backend snapshot. Hashes and admission descriptions below refer to that snapshot, not the later general runtime. See evidence/GENERAL-VALIDATION.json for current general-runtime evidence.",
   "upstream_commit": "11d483271b46e445b922756d5fd4127a1ea99ae8",
   "upstream_license": "Apache-2.0",
   "checker": "evidence/upstream/bend.ts",
