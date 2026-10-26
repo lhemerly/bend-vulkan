@@ -1,7 +1,7 @@
 // The general backend starts from the same checked compiler as the CPU lane.
 import * as fs from 'node:fs';
 import * as Bend from '../evidence/upstream/bend.ts';
-import {compile_book} from './compiler/capture.ts';
+import {compile_book} from '../evidence/upstream/comp.ts';
 
 try {
   const [source, output] = process.argv.slice(2);

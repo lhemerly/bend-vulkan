@@ -23,6 +23,18 @@ class GeneralCLI(unittest.TestCase):
         p = cls.invoke('build', cls.source, '-o', cls.bundle, '--backend', 'cpu')
         if p.returncode:
             raise AssertionError(p.stderr)
+        cls.args_source = cls.directory/'args.bend'
+        cls.args_source.write_text(
+            'import Base\n\n'
+            'def main() -> IO(Unit):\n'
+            '  do IO<Unit>:\n'
+            '    xs : List<String> <- IO.args()\n'
+            '    IO.print(Nat.show(List.length(&1, String, xs)))\n')
+        cls.args_bundle = cls.directory/'args build'
+        p = cls.invoke('build', cls.args_source, '-o', cls.args_bundle,
+                       '--backend', 'cpu')
+        if p.returncode:
+            raise AssertionError(p.stderr)
 
     @classmethod
     def tearDownClass(cls):
@@ -36,6 +48,12 @@ class GeneralCLI(unittest.TestCase):
     def test_cpu_build_runs_without_legacy_transport(self):
         p = self.invoke('run', self.bundle)
         self.assertEqual((p.returncode, p.stdout, p.stderr), (0, '42\n', ''))
+
+    def test_runtime_flags_are_not_exposed_to_io_args(self):
+        p = self.invoke('run', self.args_bundle)
+        self.assertEqual((p.returncode, p.stdout, p.stderr), (0, '1\n', ''))
+        p = self.invoke('run', self.args_bundle, '--', 'one', 'two')
+        self.assertEqual((p.returncode, p.stdout, p.stderr), (0, '3\n', ''))
 
     def test_existing_output_is_preserved(self):
         before = (self.bundle/'build.json').read_bytes()

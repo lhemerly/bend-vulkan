@@ -1,10 +1,14 @@
 Bend Vulkan backend (experimental)
 
-Derived protocol/layout: bendlang/bend Bend2 2.0.35
-Pinned commit: 11d483271b46e445b922756d5fd4127a1ea99ae8
+Derived protocol/layout: bendlang/bend Bend2 2.0.39
+Pinned commit: 295e996574573e3a88827b1cf7045b437333c8f0
 Source: https://github.com/bendlang/bend
 Original authors: Bend contributors; see upstream source and LICENSE.upstream.
 Upstream license: Apache License 2.0.
+
+Historical bounded experiments have a Bend2 2.0.35 compiler lineage at commit
+11d483271b46e445b922756d5fd4127a1ea99ae8. That compiler is not the active
+general-backend compiler.
 
 Rust and GLSL primitive drafts generated using verified free OpenCode
 space-bunny-free, then reviewed and checked locally. Any local corrections

@@ -8,6 +8,8 @@ layout(std430, binding=1) devicecoherent buffer Heap32 { uint b_heap32[]; };
 layout(push_constant) uniform Parameters { uint pass; } b_push;
 shared uint b_vote[4608];
 struct Env { uint64_t b_mem; uint64_t b_alc; };
+struct Fid { uint b_ar; uint b_resw; uint b_bangs; uint b_nofk; };
+struct Cid { uint b_ar; uint b_hot; uint b_spine; };
 void b_bend_fence() { memoryBarrier(gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
 void b_bend_bar() { controlBarrier(gl_ScopeWorkgroup, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
 void b_bend_bard() { controlBarrier(gl_ScopeWorkgroup, gl_ScopeWorkgroup, gl_StorageSemanticsBuffer | gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }

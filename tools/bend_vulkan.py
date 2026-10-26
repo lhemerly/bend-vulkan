@@ -13,7 +13,7 @@ import tempfile
 
 from c_to_glsl import translate
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 CC = os.environ.get('CC', 'clang')
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,8 +42,8 @@ def once(source, old, new):
 def host_source(source, cube_log):
     source = once(source, '#define CUBE      ((u64)CUBE_T * CUBE_T)',
                   '#define CUBE      ((u64)CUBE_T << CUBE_LOG)')
-    source = once(source, '#define RING_LOG  (17 - CUBE_LOG)', '#define RING_LOG  10')
-    source = once(source, '#define RING_WORDS ((1ull << 10) + 2)', '#define RING_WORDS (RING_LEN + 2)')
+    source = once(source, '#define RING_LEN  (1ull << (17 - CUBE_LOG))',
+                  '#define RING_LEN  (1ull << 10)')
     source = once(source, 'static u32    CUBE_LOG = 7;', f'#define CUBE_LOG {cube_log}')
     source = once(source, '#if !BEND_CUDA\n#define gpu_map pool_mmap',
                   '#if !BEND_CUDA && !BEND_VULKAN\n#define gpu_map pool_mmap')
@@ -148,8 +148,11 @@ def run(directory, args):
     if args.staging and backend != 'vulkan':
         raise ValueError('--staging requires a Vulkan build')
     gpu = (args.memory or 'on') if backend == 'vulkan' else 'off'
-    argv = [str(directory/'program'), '--gpu', gpu, '--threads', str(args.threads)]
-    argv += ['--', *args.program_args]
+    # Bend's C runtime accepts its own flags between +RTS and -RTS. Passing
+    # them directly would expose them to IO.args as program arguments.
+    argv = [str(directory/'program'), '+RTS', '--gpu', gpu, '--threads',
+            str(args.threads), '-RTS']
+    argv += args.program_args
     process = subprocess.Popen(argv, env=env, start_new_session=True)
     try:
         return process.wait(timeout=args.timeout)
