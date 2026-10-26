@@ -31,17 +31,25 @@ IEEE special cases before calling device math.
 
 `fork/runtime/vulkan_host.c` selects a Vulkan 1.2 compute device and checks its
 integer, memory-model, workgroup, shared-memory, and storage-buffer capabilities.
-The host and device use the same mapped allocation. Noncoherent host-visible memory
-is supported through flush/invalidate calls. Host-to-compute, inter-dispatch, and
+When a host-visible device-local memory type exists, the host and device share one
+mapped allocation. Otherwise the backend allocates the corpus in device-local
+memory and a mapped host-visible staging buffer, then copies the corpus before and
+after each command buffer. `BEND_VULKAN_FORCE_STAGING=1` (CLI `--staging`) forces
+the staging path for diagnostics; the trace reports `memory=staged` or
+`memory=host-visible`. Noncoherent host-visible memory is supported through
+flush/invalidate calls. Host-to-compute, transfer, inter-dispatch, and
 compute-to-host barriers plus a completed fence transfer ownership. Each corpus
 turn records the upstream grow/drain/compaction passes in one command buffer.
 CPU I/O resumes only after that turn completes. A fence deadline fails the process;
 it does not claim that terminating a host process can cancel a stuck GPU kernel.
 
-The CLI produces a standalone build directory, validates SPIR-V, records artifact
-hashes, and checks them before running. CPU builds need no Vulkan headers or shader
-tools. Vulkan builds can also run their CPU lane explicitly. Software devices
-require explicit opt-in and retain their device identity in diagnostics.
+The CLI builds in a private sibling directory and publishes the bundle atomically
+only after the compiler, translator, and SPIR-V validators succeed. It records the
+artifact hashes, build version, and cube geometry, then rejects modified artifacts,
+unsafe paths, and a conflicting `--cube-log` before running. `doctor` inspects
+prerequisites without compiling or dispatching. CPU builds need no Vulkan headers
+or shader tools. Vulkan builds can also run their CPU lane explicitly. Software
+devices require explicit opt-in and retain their device identity in diagnostics.
 
 ## Validation and scope
 
@@ -49,8 +57,13 @@ The canonical gate is `fork/tests/check_general.py`. It compares independent pin
 CPU compilation, the shared compiler's default C, adapted CPU execution, and actual
 Vulkan execution. Both one- and two-thread host modes are checked, including
 expected failures. Device execution evidence is required, so a CPU-only run cannot
-satisfy a GPU case. The general fixtures cover inputs and result types outside the
-old U32/Nat/F32 plans, and include 4096-leaf recursion and shared atomic arrays.
+satisfy a GPU case. The 58 general fixtures cover inputs and result types outside
+the old U32/Nat/F32 plans, and include 4096-leaf recursion, shared atomic arrays,
+result loops, and a 3D stencil. The gate also runs a representative subset with
+`--staging` to exercise the host-visible copy path. The separate CLI regression
+suite covers atomic publication after failed builds, artifact integrity, manifest
+and cube-geometry rejection, version/doctor output, and staging rejection for CPU
+builds.
 
 This implementation targets the pinned compiler's general GPU runtime. It retains
 upstream semantics and restrictions: effects and F32 text conversion are host-side,

@@ -4,10 +4,14 @@
   "hardware": {
     "name": "AMD Radeon RX 6600 XT (RADV NAVI23)",
     "passed": true,
-    "cases": 56,
+    "cases": 58,
     "host_threads": [
       1,
       2
+    ],
+    "cube_log": 4,
+    "memory_paths": [
+      "host-visible"
     ],
     "contracts": [
       "default C byte parity with independent pinned compiler",
@@ -15,23 +19,279 @@
       "upstream CPU output and exit status",
       "adapted CPU output and exit status",
       "actual device output and exit status",
-      "positive device cases require dispatch evidence"
+      "positive device cases require dispatch evidence",
+      "one and two host threads for every case"
     ]
+  },
+  "cpu_only": {
+    "passed": true,
+    "cases": 58,
+    "host_threads": [
+      1,
+      2
+    ],
+    "Vulkan_executed": false,
+    "note": "The cpu-only gate still builds and validates every SPIR-V module, but executes only the upstream and adapted CPU lanes."
+  },
+  "staging": {
+    "name": "AMD Radeon RX 6600 XT (RADV NAVI23)",
+    "passed": true,
+    "forced": true,
+    "cases": 5,
+    "host_threads": [
+      1,
+      2
+    ],
+    "cube_log": 4,
+    "memory_paths": [
+      "staged"
+    ],
+    "case_records": [
+      {
+        "name": "array_fork.bend",
+        "source_sha256": "8bed7ef93fcd6eeb964ca7ee3c87b9fbe3e2e576716ad647e4e6de265962352f",
+        "runs": [
+          {
+            "lane": "upstream-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-1",
+            "exit": 0,
+            "dispatches": 4,
+            "memory": "staged"
+          },
+          {
+            "lane": "upstream-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-2",
+            "exit": 0,
+            "dispatches": 4,
+            "memory": "staged"
+          }
+        ],
+        "passed": true,
+        "default_C_byte_parity": true,
+        "SPIRV_valid": true
+      },
+      {
+        "name": "deep_parallel.bend",
+        "source_sha256": "185dfe83e8b8aee0ba1755483b34a5ce9b8a21a9fafa8939bfef66f5967da45a",
+        "runs": [
+          {
+            "lane": "upstream-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-1",
+            "exit": 0,
+            "dispatches": 4,
+            "memory": "staged"
+          },
+          {
+            "lane": "upstream-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-2",
+            "exit": 0,
+            "dispatches": 4,
+            "memory": "staged"
+          }
+        ],
+        "passed": true,
+        "default_C_byte_parity": true,
+        "SPIRV_valid": true
+      },
+      {
+        "name": "fork_leaf_result_loop.bend",
+        "source_sha256": "c90e436fbc8984419a252fdf02abbcf9c9273ca5a9527ecefca5be2e8353ecbb",
+        "runs": [
+          {
+            "lane": "upstream-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-1",
+            "exit": 0,
+            "dispatches": 4,
+            "memory": "staged"
+          },
+          {
+            "lane": "upstream-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-2",
+            "exit": 0,
+            "dispatches": 4,
+            "memory": "staged"
+          }
+        ],
+        "passed": true,
+        "default_C_byte_parity": true,
+        "SPIRV_valid": true
+      },
+      {
+        "name": "nat_overflow.bend",
+        "source_sha256": "26fbfceccbd1230e2d3712e08612f48997354ecef7bd4ffffa002e9571d55b8c",
+        "runs": [
+          {
+            "lane": "upstream-gpu-off-threads-1",
+            "exit": 1,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-1",
+            "exit": 1,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-1",
+            "exit": 1,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "upstream-gpu-off-threads-2",
+            "exit": 1,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-2",
+            "exit": 1,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-2",
+            "exit": 1,
+            "dispatches": null,
+            "memory": null
+          }
+        ],
+        "passed": true,
+        "default_C_byte_parity": true,
+        "SPIRV_valid": true
+      },
+      {
+        "name": "stencil3d.bend",
+        "source_sha256": "63c5c3b39aebab6c490dbcf2b7ca0d4860f5187f59a54e226bdec50ce38f7c87",
+        "runs": [
+          {
+            "lane": "upstream-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-1",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-1",
+            "exit": 0,
+            "dispatches": 16,
+            "memory": "staged"
+          },
+          {
+            "lane": "upstream-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-off-threads-2",
+            "exit": 0,
+            "dispatches": null,
+            "memory": null
+          },
+          {
+            "lane": "program-gpu-on-threads-2",
+            "exit": 0,
+            "dispatches": 16,
+            "memory": "staged"
+          }
+        ],
+        "passed": true,
+        "default_C_byte_parity": true,
+        "SPIRV_valid": true
+      }
+    ],
+    "note": "Successful GPU lanes are required to report memory=staged. nat_overflow fails by contract after its device submit and therefore has no cleanup trace."
   },
   "software": {
     "name": "llvmpipe (LLVM 22.1.4, 256 bits)",
-    "passed_cases": 54,
-    "total_cases": 55,
+    "scope": "earlier 56-case suite",
+    "passed_cases": 55,
+    "total_cases": 56,
+    "selected_cases": 55,
+    "selected_passed": 54,
+    "additional_passed_cases": [
+      "float_corners.bend"
+    ],
     "timeouts": [
       {
         "case": "map_set_ops.bend",
         "deadline_seconds": 300
       }
     ],
-    "additional_passed_cases": [
-      "float_corners.bend"
-    ],
-    "note": "The complete map_set_ops case passes on hardware; software timing is not a hardware performance result."
+    "note": "float_corners passed in an additional software run. map_set_ops passes on hardware but exceeded the 300-second software deadline. The two fixtures added to the 58-case suite were not part of this earlier software run; CI exercises a representative lavapipe subset."
   },
   "cases": [
     {
@@ -41,32 +301,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -80,32 +346,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -119,32 +391,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -158,32 +436,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -197,32 +481,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -236,32 +526,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -275,32 +571,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -314,32 +616,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -353,32 +661,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -392,32 +706,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -431,32 +751,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -470,32 +796,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -509,32 +841,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -548,32 +886,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -587,32 +931,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -626,32 +976,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -665,32 +1021,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -704,32 +1066,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -743,32 +1111,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -782,32 +1156,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -821,32 +1201,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -860,32 +1246,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -899,32 +1291,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -938,32 +1336,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -977,32 +1381,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1016,32 +1426,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1055,32 +1471,83 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "fork_leaf_result_loop.bend",
+      "source_sha256": "c90e436fbc8984419a252fdf02abbcf9c9273ca5a9527ecefca5be2e8353ecbb",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 4,
+          "memory": "host-visible"
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1094,32 +1561,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 12
+          "dispatches": 12,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 12
+          "dispatches": 12,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1133,32 +1606,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1172,32 +1651,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 8
+          "dispatches": 8,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 8
+          "dispatches": 8,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1211,32 +1696,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1250,32 +1741,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1289,32 +1786,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 8
+          "dispatches": 8,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 8
+          "dispatches": 8,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1328,32 +1831,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1367,32 +1876,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1406,32 +1921,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1445,32 +1966,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1484,32 +2011,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1523,32 +2056,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1562,32 +2101,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1601,32 +2146,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1640,32 +2191,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1679,32 +2236,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 1,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 1,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 1,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 1,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 1,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 1,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         }
       ],
       "passed": true,
@@ -1718,32 +2281,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1757,32 +2326,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1796,32 +2371,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1835,32 +2416,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1874,32 +2461,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1913,32 +2506,83 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
+        }
+      ],
+      "passed": true,
+      "default_C_byte_parity": true,
+      "SPIRV_valid": true
+    },
+    {
+      "name": "stencil3d.bend",
+      "source_sha256": "63c5c3b39aebab6c490dbcf2b7ca0d4860f5187f59a54e226bdec50ce38f7c87",
+      "runs": [
+        {
+          "lane": "upstream-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-off-threads-1",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-on-threads-1",
+          "exit": 0,
+          "dispatches": 16,
+          "memory": "host-visible"
+        },
+        {
+          "lane": "upstream-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-off-threads-2",
+          "exit": 0,
+          "dispatches": null,
+          "memory": null
+        },
+        {
+          "lane": "program-gpu-on-threads-2",
+          "exit": 0,
+          "dispatches": 16,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1952,32 +2596,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -1991,32 +2641,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -2030,32 +2686,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -2069,32 +2731,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -2108,32 +2776,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -2147,32 +2821,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -2186,32 +2866,38 @@
         {
           "lane": "upstream-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-1",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-1",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         },
         {
           "lane": "upstream-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-off-threads-2",
           "exit": 0,
-          "dispatches": null
+          "dispatches": null,
+          "memory": null
         },
         {
           "lane": "program-gpu-on-threads-2",
           "exit": 0,
-          "dispatches": 4
+          "dispatches": 4,
+          "memory": "host-visible"
         }
       ],
       "passed": true,
@@ -2225,16 +2911,28 @@
     "glslang": "Glslang Version: 11:16.4.0",
     "python": "Python 3.14.7"
   },
-  "CLI_regression_tests": 7,
+  "CLI_regression_tests": 12,
   "legacy_F32_candidate_regression": {
     "passed": true,
     "ordinary_C_byte_parity": true,
     "GPU_dispatches": 0,
-    "admission_remains_disabled": true
+    "admission_remains_disabled": true,
+    "source": "evidence/upstream/tests/run/gpu_trig.bend",
+    "source_sha256": "662666270b2d10daa292dcb8a1157f99f7db3a313f36185e18e165359bf36001"
+  },
+  "legacy_F32_e2e": {
+    "passed": true,
+    "ordinary_C_byte_parity": true,
+    "expected": "78542\n",
+    "GPU_dispatches": 0,
+    "hardware_acceptance": false,
+    "source": "evidence/upstream/tests/run/gpu_trig.bend",
+    "source_sha256": "662666270b2d10daa292dcb8a1157f99f7db3a313f36185e18e165359bf36001"
   },
   "additional_geometry_checks": {
     "cube_log": 0,
     "hardware": true,
+    "device": "AMD Radeon RX 6600 XT (RADV NAVI23)",
     "cases": [
       "deep_parallel.bend",
       "list_string_lookups.bend"
@@ -2243,14 +2941,17 @@
       1,
       2
     ],
+    "memory_paths": [
+      "host-visible"
+    ],
     "passed": true
   },
   "implementation_files_sha256": {
     "fork/compiler/capture.ts": "50b28c2ab5cc0cd13ad7af8eb8ef418d0e130e06e73e46ca3c7fa4bd4bcfdd56",
     "fork/general_cli.ts": "53121893285cd53be0afd94517494d312196fd831db4618027e0781b6ea96877",
     "fork/runtime/general.comp": "c69962b0e6b19372a0999a2d1330d5220577a7782f54df157606b794579c8eb7",
-    "fork/runtime/vulkan_host.c": "9e39e950b606d38507196c27f804eaf41be7ef4997524b2fec16010355117375",
+    "fork/runtime/vulkan_host.c": "6e31850fcc8b77f29ce2b2b27eb0b9d0c3caf35929b417a9b449bb83eda25508",
     "tools/c_to_glsl.py": "47125a5b5f2d2b2394b1ecf3a6e39a78d57455c18865e69dc127e8f94c3a2760",
-    "tools/bend_vulkan.py": "b5674413e0c5386be405e2ee14c478f7dac783161d50734726c317673766be4b"
+    "tools/bend_vulkan.py": "cf737b18e363dc80662b507f9e7554a9137e72d72b99d45aae97cd8f76fbfe6d"
   }
 }

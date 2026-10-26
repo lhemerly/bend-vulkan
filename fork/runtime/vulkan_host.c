@@ -1,5 +1,6 @@
-/* Included in the host half of the pinned Bend runtime. The same corpus is
- * mapped on the host and device; ownership transfers at dispatch/fence bounds. */
+/* Included in the host half of the pinned Bend runtime. The corpus is either
+ * mapped directly when device-local host-visible memory exists, or copied via a
+ * mapped staging buffer; ownership transfers at dispatch/fence bounds. */
 #include <vulkan/vulkan.h>
 
 #define VK_CHECK(call) do { VkResult rc_ = (call); if (rc_ != VK_SUCCESS) { \
@@ -15,7 +16,12 @@ static u32 vk_family;
 static VkBuffer vk_buffer;
 static VkDeviceMemory vk_memory;
 static VkDeviceSize vk_bytes;
+static VkBuffer vk_staging_buffer;
+static VkDeviceMemory vk_staging_memory;
+static void* vk_map;
+static void* vk_staging_map;
 static bool vk_coherent;
+static bool vk_staged;
 static VkDescriptorSetLayout vk_set_layout;
 static VkDescriptorPool vk_pool;
 static VkDescriptorSet vk_set;
@@ -28,9 +34,12 @@ static VkFence vk_fence;
 static u64 vk_dispatches;
 
 static void vk_cleanup(void) {
-  if (getenv("BEND_VULKAN_TRACE")) fprintf(stderr, "Vulkan device=%s dispatches=%llu\n",
-    vk_properties.deviceName, (unsigned long long)vk_dispatches);
+  if (getenv("BEND_VULKAN_TRACE") && vk_physical)
+    fprintf(stderr, "Vulkan device=%s memory=%s dispatches=%llu\n",
+      vk_properties.deviceName, vk_staged ? "staged" : "host-visible",
+      (unsigned long long)vk_dispatches);
   if (vk_device) {
+    vkDeviceWaitIdle(vk_device);
     if (vk_fence) vkDestroyFence(vk_device, vk_fence, NULL);
     if (vk_commands) vkDestroyCommandPool(vk_device, vk_commands, NULL);
     if (vk_pipeline) vkDestroyPipeline(vk_device, vk_pipeline, NULL);
@@ -38,7 +47,14 @@ static void vk_cleanup(void) {
     if (vk_layout) vkDestroyPipelineLayout(vk_device, vk_layout, NULL);
     if (vk_pool) vkDestroyDescriptorPool(vk_device, vk_pool, NULL);
     if (vk_set_layout) vkDestroyDescriptorSetLayout(vk_device, vk_set_layout, NULL);
-    if (vk_memory) vkUnmapMemory(vk_device, vk_memory);
+    if (vk_staging_map) {
+      vkUnmapMemory(vk_device, vk_staging_memory);
+      if (vk_map == vk_staging_map) vk_map = NULL;
+      vk_staging_map = NULL;
+    }
+    if (vk_staging_buffer) vkDestroyBuffer(vk_device, vk_staging_buffer, NULL);
+    if (vk_staging_memory) vkFreeMemory(vk_device, vk_staging_memory, NULL);
+    if (vk_map) vkUnmapMemory(vk_device, vk_memory);
     if (vk_buffer) vkDestroyBuffer(vk_device, vk_buffer, NULL);
     if (vk_memory) vkFreeMemory(vk_device, vk_memory, NULL);
     vkDestroyDevice(vk_device, NULL);
@@ -110,29 +126,65 @@ static u64 gpu_span(void) {
   return limit < wanted ? limit : wanted;
 }
 
+static u32 vk_memory_type(const VkPhysicalDeviceMemoryProperties* mp, u32 bits,
+    VkMemoryPropertyFlags required, VkMemoryPropertyFlags preferred) {
+  u32 first=UINT32_MAX;
+  for (u32 i=0; i<mp->memoryTypeCount; i++) {
+    VkMemoryPropertyFlags flags=mp->memoryTypes[i].propertyFlags;
+    if (!(bits & (1u<<i)) || (flags & required) != required) continue;
+    if (first==UINT32_MAX) first=i;
+    if ((flags & preferred) == preferred) return i;
+  }
+  return first;
+}
+
 static u64* gpu_map(u64 bytes) {
   if (bytes > vk_properties.limits.maxStorageBufferRange) err_fail("GPU heap exceeds maxStorageBufferRange");
   vk_bytes=bytes;
   VkBufferCreateInfo bci={.sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, .size=bytes,
-    .usage=VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, .sharingMode=VK_SHARING_MODE_EXCLUSIVE};
+    .usage=VK_BUFFER_USAGE_STORAGE_BUFFER_BIT|VK_BUFFER_USAGE_TRANSFER_SRC_BIT|VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+    .sharingMode=VK_SHARING_MODE_EXCLUSIVE};
   VK_CHECK(vkCreateBuffer(vk_device, &bci, NULL, &vk_buffer));
   VkMemoryRequirements req; vkGetBufferMemoryRequirements(vk_device, vk_buffer, &req);
   VkPhysicalDeviceMemoryProperties mp; vkGetPhysicalDeviceMemoryProperties(vk_physical, &mp);
-  u32 type=UINT32_MAX;
-  for (u32 i=0; i<mp.memoryTypeCount; i++) if ((req.memoryTypeBits & (1u<<i)) &&
-      (mp.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) {
-    type=i;
-    if (mp.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) break;
-  }
-  if (type==UINT32_MAX) err_fail("Vulkan host-visible heap unavailable");
-  vk_coherent=(mp.memoryTypes[type].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)!=0;
+  u32 host=vk_memory_type(&mp, req.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT|VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  u32 local=vk_memory_type(&mp, req.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  bool host_local=host!=UINT32_MAX &&
+    (mp.memoryTypes[host].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)!=0;
+  const char* force=getenv("BEND_VULKAN_FORCE_STAGING");
+  bool forced=force && *force && strcmp(force, "0");
+  bool staged=forced || host==UINT32_MAX || (!host_local && local!=UINT32_MAX);
+  if (host==UINT32_MAX) err_fail("Vulkan host-visible staging memory unavailable");
+  u32 main_type=staged ? (local!=UINT32_MAX ? local : host) : host;
   VkMemoryAllocateInfo mai={.sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-    .allocationSize=req.size, .memoryTypeIndex=type};
+    .allocationSize=req.size, .memoryTypeIndex=main_type};
   VK_CHECK(vkAllocateMemory(vk_device, &mai, NULL, &vk_memory));
   VK_CHECK(vkBindBufferMemory(vk_device, vk_buffer, vk_memory, 0));
-  void* mapped; VK_CHECK(vkMapMemory(vk_device, vk_memory, 0, VK_WHOLE_SIZE, 0, &mapped));
-  memset(mapped, 0, bytes);
-  return mapped;
+  vk_staged=staged;
+  if (!staged) {
+    VK_CHECK(vkMapMemory(vk_device, vk_memory, 0, VK_WHOLE_SIZE, 0, &vk_map));
+    vk_coherent=(mp.memoryTypes[host].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)!=0;
+  } else {
+    VkBufferCreateInfo sci={.sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, .size=bytes,
+      .usage=VK_BUFFER_USAGE_TRANSFER_SRC_BIT|VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+      .sharingMode=VK_SHARING_MODE_EXCLUSIVE};
+    VK_CHECK(vkCreateBuffer(vk_device, &sci, NULL, &vk_staging_buffer));
+    VkMemoryRequirements sreq; vkGetBufferMemoryRequirements(vk_device, vk_staging_buffer, &sreq);
+    u32 host2=vk_memory_type(&mp, sreq.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    if (host2==UINT32_MAX) err_fail("Vulkan host-visible staging memory unavailable");
+    VkMemoryAllocateInfo smai={.sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+      .allocationSize=sreq.size, .memoryTypeIndex=host2};
+    VK_CHECK(vkAllocateMemory(vk_device, &smai, NULL, &vk_staging_memory));
+    VK_CHECK(vkBindBufferMemory(vk_device, vk_staging_buffer, vk_staging_memory, 0));
+    VK_CHECK(vkMapMemory(vk_device, vk_staging_memory, 0, VK_WHOLE_SIZE, 0, &vk_staging_map));
+    vk_coherent=(mp.memoryTypes[host2].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)!=0;
+    vk_map=vk_staging_map;
+  }
+  memset(vk_map, 0, bytes);
+  return vk_map;
 }
 
 static bool gpu_make(const char* path) { return access(path, R_OK)==0; }
@@ -197,7 +249,8 @@ static void gpu_kernel(u32 pass, u32 groups) {
 }
 
 static void gpu_pass(u32 frontier) {
-  VkMappedMemoryRange range={.sType=VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, .memory=vk_memory, .size=VK_WHOLE_SIZE};
+  VkMappedMemoryRange range={.sType=VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
+    .memory=vk_staged ? vk_staging_memory : vk_memory, .size=VK_WHOLE_SIZE};
   if (!vk_coherent) VK_CHECK(vkFlushMappedMemoryRanges(vk_device, 1, &range));
   VK_CHECK(vkResetFences(vk_device, 1, &vk_fence));
   VK_CHECK(vkResetCommandBuffer(vk_command, 0));
@@ -206,13 +259,35 @@ static void gpu_pass(u32 frontier) {
   VK_CHECK(vkBeginCommandBuffer(vk_command, &begin));
   vkCmdBindPipeline(vk_command, VK_PIPELINE_BIND_POINT_COMPUTE, vk_pipeline);
   vkCmdBindDescriptorSets(vk_command, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout, 0, 1, &vk_set, 0, NULL);
-  VkMemoryBarrier pre={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
-    .srcAccessMask=VK_ACCESS_HOST_WRITE_BIT, .dstAccessMask=VK_ACCESS_SHADER_READ_BIT|VK_ACCESS_SHADER_WRITE_BIT};
-  vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 1, &pre, 0, NULL, 0, NULL);
+  if (vk_staged) {
+    VkMemoryBarrier upload={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+      .srcAccessMask=VK_ACCESS_HOST_WRITE_BIT, .dstAccessMask=VK_ACCESS_TRANSFER_READ_BIT};
+    vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 1, &upload, 0, NULL, 0, NULL);
+    VkBufferCopy copy={.srcOffset=0, .dstOffset=0, .size=vk_bytes};
+    vkCmdCopyBuffer(vk_command, vk_staging_buffer, vk_buffer, 1, &copy);
+    VkMemoryBarrier ready={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+      .srcAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT, .dstAccessMask=VK_ACCESS_SHADER_READ_BIT|VK_ACCESS_SHADER_WRITE_BIT};
+    vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 1, &ready, 0, NULL, 0, NULL);
+  } else {
+    VkMemoryBarrier pre={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+      .srcAccessMask=VK_ACCESS_HOST_WRITE_BIT, .dstAccessMask=VK_ACCESS_SHADER_READ_BIT|VK_ACCESS_SHADER_WRITE_BIT};
+    vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 1, &pre, 0, NULL, 0, NULL);
+  }
   gpu_run(frontier);
-  VkMemoryBarrier post={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
-    .srcAccessMask=VK_ACCESS_SHADER_WRITE_BIT, .dstAccessMask=VK_ACCESS_HOST_READ_BIT|VK_ACCESS_HOST_WRITE_BIT};
-  vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 1, &post, 0, NULL, 0, NULL);
+  if (vk_staged) {
+    VkMemoryBarrier download={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+      .srcAccessMask=VK_ACCESS_SHADER_WRITE_BIT, .dstAccessMask=VK_ACCESS_TRANSFER_READ_BIT};
+    vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 1, &download, 0, NULL, 0, NULL);
+    VkBufferCopy copy={.srcOffset=0, .dstOffset=0, .size=vk_bytes};
+    vkCmdCopyBuffer(vk_command, vk_buffer, vk_staging_buffer, 1, &copy);
+    VkMemoryBarrier finish={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+      .srcAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT, .dstAccessMask=VK_ACCESS_HOST_READ_BIT|VK_ACCESS_HOST_WRITE_BIT};
+    vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 1, &finish, 0, NULL, 0, NULL);
+  } else {
+    VkMemoryBarrier post={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+      .srcAccessMask=VK_ACCESS_SHADER_WRITE_BIT, .dstAccessMask=VK_ACCESS_HOST_READ_BIT|VK_ACCESS_HOST_WRITE_BIT};
+    vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 1, &post, 0, NULL, 0, NULL);
+  }
   VK_CHECK(vkEndCommandBuffer(vk_command));
   VkSubmitInfo submit={.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO, .commandBufferCount=1, .pCommandBuffers=&vk_command};
   if (getenv("BEND_VULKAN_TRACE")) fprintf(stderr, "Vulkan submit frontier=%u\n", frontier);

@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -65,18 +66,55 @@ class GeneralCLI(unittest.TestCase):
         self.assertEqual(p.stdout, '')
         self.assertIn('no Vulkan module', p.stderr)
 
-    def test_checker_errors_are_concise(self):
+    def test_cpu_build_cannot_request_staging(self):
+        p = self.invoke('run', self.bundle, '--staging')
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn('--staging requires a Vulkan build', p.stderr)
+
+    def test_checker_errors_are_concise_and_leave_no_output(self):
         source = self.directory/'invalid.bend'
         source.write_text('import Base\n\ndef main() -> U32:\n  True{}\n')
-        p = self.invoke('build', source, '-o', self.directory/'invalid build', '--backend', 'cpu')
+        output = self.directory/'invalid build'
+        p = self.invoke('build', source, '-o', output, '--backend', 'cpu')
         self.assertNotEqual(p.returncode, 0)
         self.assertLess(len(p.stderr), 10000)
-        self.assertFalse((self.directory/'invalid build/build.json').exists())
+        self.assertFalse(output.exists(), 'a failed build must not leave a partial directory')
+        self.assertEqual(list(output.parent.glob('.bend-vulkan-build-*')), [],
+                         'a failed build must remove its private staging directory')
 
     def test_manifest_records_cpu_backend(self):
         manifest = json.loads((self.bundle/'build.json').read_text())
         self.assertEqual(manifest['backend'], 'cpu')
         self.assertNotIn('program.gpu', manifest['files'])
+
+    def test_version_is_available_without_a_subcommand(self):
+        p = self.invoke('--version')
+        self.assertEqual(p.returncode, 0)
+        self.assertRegex(p.stdout.strip(), r'^bend-vulkan \d+\.\d+\.\d+$')
+
+    def test_cube_log_mismatch_is_rejected(self):
+        p = self.invoke('run', self.bundle, '--cube-log', '3')
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn('--cube-log does not match', p.stderr)
+
+    def test_doctor_json_reports_prerequisites_without_dispatch(self):
+        p = self.invoke('doctor', '--cpu-only', '--json')
+        self.assertEqual(p.returncode, 0, p.stderr)
+        report = json.loads(p.stdout)
+        self.assertEqual((report['command'], report['gpu_dispatches']), ('doctor', 0))
+        self.assertTrue(report['ok'])
+        self.assertEqual(set(report['tools']), {'bun', 'clang'})
+        self.assertEqual(report['tools']['clang']['command'], os.environ.get('CC', 'clang'))
+
+    def test_doctor_reports_missing_tools_without_executing_them(self):
+        p = subprocess.run([sys.executable, str(CLI), 'doctor', '--json'],
+                           capture_output=True, text=True, timeout=30,
+                           env={**os.environ, 'PATH': '', 'CC': 'clang'})
+        self.assertEqual(p.returncode, 1)
+        report = json.loads(p.stdout)
+        self.assertFalse(report['ok'])
+        self.assertIn('bun', report['missing'])
+        self.assertTrue(all(not item['available'] for item in report['tools'].values()))
 
 
 if __name__ == '__main__':

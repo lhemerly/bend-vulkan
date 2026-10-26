@@ -1,5 +1,10 @@
 {
-  "record_scope": "Historical bounded-backend snapshot. Hashes and admission descriptions below refer to that snapshot, not the later general runtime. See evidence/GENERAL-VALIDATION.json for current general-runtime evidence.",
+  "record_scope": "The pinned upstream files and published fork sources are hash-checked against the current tree. Admission and runtime descriptions below still describe the historical bounded-backend snapshot, not the later general runtime. fork/compiler/capture.ts is now the shared checked compiler for the general runtime. Two internal design notes from the original snapshot were not published; their recorded hashes are retained below for audit. See evidence/GENERAL-VALIDATION.json for current general-runtime evidence.",
+  "unpublished_historical_paths": {
+    "fork/PROTOCOL.md": "2efc1851cbbde839babd04b23909850b3fdbf3328006e2be48408e82a78e402c",
+    "fork/README.md": "ea137b1ee96d4160669149ae9fdf212610b14c52f0da90abd7e0d3b864b7946b"
+  },
+  "unpublished_historical_note": "These internal notes were referenced by the historical snapshot but are not part of the published repository.",
   "upstream_commit": "11d483271b46e445b922756d5fd4127a1ea99ae8",
   "upstream_license": "Apache-2.0",
   "checker": "evidence/upstream/bend.ts",
@@ -12,7 +17,7 @@
     "evidence/upstream/bend.ts": "1d133151652b597a1a035c77c172475e6de096da37f3b9e3adc23c2f75bdfe49",
     "evidence/upstream/base.bend": "99ac43f2b2bb3e3f39acdcedcecbbd3cb44749ce13969c827d6973fa66f7facf",
     "evidence/upstream/comp.ts": "3da4ec2eba9174ce4ac57d6620b460335063328e7275914d21419026dda2518e",
-    "fork/compiler/capture.ts": "e653c34f6e156428c6e70c4c53d286643abf31038127ca4e4a7f012dac37b861",
+    "fork/compiler/capture.ts": "50b28c2ab5cc0cd13ad7af8eb8ef418d0e130e06e73e46ca3c7fa4bd4bcfdd56",
     "evidence/upstream/effs/args.c": "84e12702f78e7cce5d350a3ccc6cfbda66f812496c39f025afe02bdf090880cf",
     "evidence/upstream/effs/args.js": "ed1a7e7b73ae7fe58ac6d428d2762b66f223f4c70a165570fc5d68dc874ddc0b",
     "evidence/upstream/effs/audio.c": "befb8d5514c945a1ea59c164e601b76c082db9f328487658ecfc56a5b943788e",
@@ -80,10 +85,8 @@
   },
   "routing_contract": "selected transport refuses pending host joins before CPU scheduling; no silent fallback",
   "fork_sources": {
-    "fork/PROTOCOL.md": "2efc1851cbbde839babd04b23909850b3fdbf3328006e2be48408e82a78e402c",
-    "fork/README.md": "ea137b1ee96d4160669149ae9fdf212610b14c52f0da90abd7e0d3b864b7946b",
     "fork/cli.ts": "86c01246beb2d0d479141fcb00f7c8d5852a471b075fa6750aa5b6257fcdafcf",
-    "fork/compiler/capture.ts": "e653c34f6e156428c6e70c4c53d286643abf31038127ca4e4a7f012dac37b861",
+    "fork/compiler/capture.ts": "50b28c2ab5cc0cd13ad7af8eb8ef418d0e130e06e73e46ca3c7fa4bd4bcfdd56",
     "fork/compiler/emitter.ts": "44947de16708a08dcef6b6ad52d85b2b142469d7fb8f27ff4d584741f283ad1a",
     "fork/runtime/abi.py": "64ce77e0056d2064051c0fce853e51dc19276103f6c99a9fb96736b3a7a55099",
     "fork/runtime/controller.py": "caec475b50fd0153dc0d585f739243e18b779d63917f482927be4c25750db309",

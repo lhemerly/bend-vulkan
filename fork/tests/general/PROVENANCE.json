@@ -1,6 +1,13 @@
 {
   "commit": "11d483271b46e445b922756d5fd4127a1ea99ae8",
   "license": "Apache-2.0",
+  "local_fixtures": [
+    "closure_input.bend",
+    "deep_parallel.bend",
+    "float_corners.bend",
+    "host_handoffs.bend"
+  ],
+  "local_fixtures_note": "Authored for the general backend compatibility suite; not derived from an upstream test.",
   "sources": [
     {
       "file": "gpu_mark.bend",
@@ -313,6 +320,18 @@
       "upstream_path": "tests/run/word_wrap_chains.bend",
       "upstream_sha256": "56284ea3d1dd89589164211a9544795a5680826afa20dad53fa06ee605eca649",
       "adaptation": "mark main.out as device call"
+    },
+    {
+      "file": "fork_leaf_result_loop.bend",
+      "upstream_path": "tests/run/fork_leaf_result_loop.bend",
+      "upstream_sha256": "c90e436fbc8984419a252fdf02abbcf9c9273ca5a9527ecefca5be2e8353ecbb",
+      "adaptation": "unchanged"
+    },
+    {
+      "file": "stencil3d.bend",
+      "upstream_path": "tests/run/stencil3d.bend",
+      "upstream_sha256": "63c5c3b39aebab6c490dbcf2b7ca0d4860f5187f59a54e226bdec50ce38f7c87",
+      "adaptation": "unchanged"
     }
   ]
 }

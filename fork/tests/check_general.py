@@ -22,13 +22,18 @@ def main():
     parser.add_argument('--case', action='append', help='fixture stem; repeat to select multiple cases')
     parser.add_argument('--cube-log', type=int, choices=range(8), default=4)
     parser.add_argument('--timeout', type=int, default=300)
+    parser.add_argument('--staging', action='store_true', help='force the host-visible staging path')
     args = parser.parse_args()
+    if args.cpu_only and args.staging:
+        parser.error('--staging requires Vulkan execution')
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     env = {k: v for k, v in os.environ.items() if not k.startswith(('BEND_FORK_', 'BEND_VULKAN_'))}
     env['BEND_VULKAN_DEVICE'] = str(args.device)
     if args.software:
         env['BEND_VULKAN_SOFTWARE'] = '1'
+    if args.staging:
+        env['BEND_VULKAN_FORCE_STAGING'] = '1'
     cases = sorted((ROOT/'fork/tests/general').glob('*.bend'))
     if args.case:
         missing = set(args.case) - {p.stem for p in cases}
@@ -36,7 +41,8 @@ def main():
             parser.error('unknown cases: ' + ', '.join(sorted(missing)))
         cases = [p for p in cases if p.stem in args.case]
     report = {'passed': False, 'Vulkan_executed': not args.cpu_only,
-              'software_permitted': args.software, 'cube_log': args.cube_log, 'cases': []}
+              'software_permitted': args.software, 'staging_forced': args.staging,
+              'device': None, 'memory_paths': [], 'cube_log': args.cube_log, 'cases': []}
     for source in cases:
         row = {'name': source.name, 'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(), 'runs': []}
         directory = output/source.stem
@@ -64,10 +70,21 @@ def main():
                     actual = p.stdout + errors
                     assert p.returncode == exit_code and actual == want, (label, p.returncode, actual, want)
                     dispatches = re.search(r'dispatches=(\d+)', p.stderr)
+                    device = re.search(r'Vulkan device=(.*?) memory=', p.stderr)
+                    memory = re.search(r'memory=(\S+)', p.stderr)
                     if gpu == 'on':
                         assert (dispatches and int(dispatches[1]) > 0) or (exit_code and 'Vulkan submit ' in p.stderr), 'no device dispatch evidence'
+                        if args.staging and memory:
+                            assert memory[1] == 'staged', 'forced staging path was not used'
+                        if args.staging and exit_code == 0:
+                            assert memory and memory[1] == 'staged', 'no staging memory-path evidence'
+                        if device:
+                            report['device'] = device[1]
+                        if memory and memory[1] not in report['memory_paths']:
+                            report['memory_paths'].append(memory[1])
                     row['runs'].append({'lane': label, 'exit': p.returncode,
-                                        'dispatches': int(dispatches[1]) if dispatches else None})
+                                        'dispatches': int(dispatches[1]) if dispatches else None,
+                                        'memory': memory[1] if memory else None})
             row.update(passed=True, default_C_byte_parity=True, SPIRV_valid=True)
         except Exception as error:
             row.update(passed=False, error=str(error))
