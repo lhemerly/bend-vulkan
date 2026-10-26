@@ -1,0 +1,47 @@
+name: General Vulkan runtime
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  lavapipe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CC: /usr/bin/clang
+      LP_NUM_THREADS: 4
+      VK_LOADER_LAYERS_DISABLE: '~implicit~'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.2'
+      - name: Install compiler and software Vulkan
+        run: sudo apt-get update && sudo apt-get install -y clang libvulkan-dev mesa-vulkan-drivers glslang-tools spirv-tools
+      - run: python3 tools/test_general_cli.py
+      - name: Check all source and CPU contracts
+        run: python3 fork/tests/check_general.py /tmp/bend-cpu-contracts --cpu-only
+      - name: Execute software Vulkan regressions
+        run: >-
+          python3 fork/tests/check_general.py /tmp/bend-vulkan-contracts --software
+          --case array_fork --case array_atomic_fadd --case array_redirect_race
+          --case array_boxed_get --case array_poly_elem --case closure_input
+          --case closures_hof --case deep_parallel --case fork_shapes
+          --case fork_leaf_result_loop --case gpu_trig --case host_handoffs
+          --case float_corners --case float_specials --case nat_native
+          --case nat_overflow --case fn_capture_owns --case nat_add_infix
+          --case nested_tuples_records --case wide_record --case graph_bfs
+          --case string_algorithms --case stencil3d
+      - name: Exercise the host-visible staging path
+        run: >-
+          python3 fork/tests/check_general.py /tmp/bend-vulkan-staging --software
+          --staging --case array_fork --case fork_leaf_result_loop
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: general-runtime-results
+          path: |
+            /tmp/bend-cpu-contracts/RESULT.json
+            /tmp/bend-vulkan-contracts/RESULT.json
+            /tmp/bend-vulkan-contracts/**/*.stderr
+            /tmp/bend-vulkan-staging/RESULT.json
+            /tmp/bend-vulkan-staging/**/*.stderr

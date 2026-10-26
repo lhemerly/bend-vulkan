@@ -1,0 +1,88 @@
+#version 450
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_KHR_memory_scope_semantics : require
+#pragma use_vulkan_memory_model
+layout(local_size_x=128) in;
+layout(std430, binding=0) devicecoherent buffer Heap64 { uint64_t b_heap64[]; };
+layout(std430, binding=1) devicecoherent buffer Heap32 { uint b_heap32[]; };
+layout(push_constant) uniform Parameters { uint pass; } b_push;
+shared uint b_vote[4608];
+struct Env { uint64_t b_mem; uint64_t b_alc; };
+void b_bend_fence() { memoryBarrier(gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+void b_bend_bar() { controlBarrier(gl_ScopeWorkgroup, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+void b_bend_bard() { controlBarrier(gl_ScopeWorkgroup, gl_ScopeWorkgroup, gl_StorageSemanticsBuffer | gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+float b_f32_unbox(uint64_t x) { return uintBitsToFloat(uint(x)); }
+uint64_t b_f32_rewrap(float x) { return uint64_t(floatBitsToUint(x)); }
+float b_log10(float x) { return log(x) / log(10.0); }
+// Binary long division on significands preserves fmod's sign and subnormals.
+float b_fmod(float x, float y) {
+  uint ux = floatBitsToUint(x), uy = floatBitsToUint(y);
+  uint sign = ux & 0x80000000u;
+  ux &= 0x7fffffffu; uy &= 0x7fffffffu;
+  if (uy == 0u || ux >= 0x7f800000u || uy > 0x7f800000u) return uintBitsToFloat(0x7fc00000u);
+  if (ux <= uy) return ux == uy ? uintBitsToFloat(sign) : x;
+  int ex = int(ux >> 23), ey = int(uy >> 23);
+  if (ex == 0) { ex = 1; while (ux < 0x800000u) { ux <<= 1; ex--; } }
+  else ux = (ux & 0x7fffffu) | 0x800000u;
+  if (ey == 0) { ey = 1; while (uy < 0x800000u) { uy <<= 1; ey--; } }
+  else uy = (uy & 0x7fffffu) | 0x800000u;
+  while (ex > ey) { if (ux >= uy) ux -= uy; if (ux == 0u) return uintBitsToFloat(sign); ux <<= 1; ex--; }
+  if (ux >= uy) ux -= uy;
+  if (ux == 0u) return uintBitsToFloat(sign);
+  while (ux < 0x800000u) { ux <<= 1; ex--; }
+  ux = ex > 0 ? (ux - 0x800000u) | (uint(ex) << 23) : ux >> uint(1 - ex);
+  return uintBitsToFloat(ux | sign);
+}
+float b_pow(float x, float y) {
+  if (y == 0.0 || x == 1.0 || (x == -1.0 && isinf(y))) return 1.0;
+  if (isnan(x) || isnan(y)) return uintBitsToFloat(0x7fc00000u);
+  float ax = abs(x);
+  if (isinf(y)) return (ax > 1.0) == (y > 0.0) ? uintBitsToFloat(0x7f800000u) : 0.0;
+  bool whole = trunc(y) == y;
+  bool odd = whole && abs(y) < 16777216.0 && (int(abs(y)) & 1) != 0;
+  bool negative = (floatBitsToUint(x) & 0x80000000u) != 0u && odd;
+  if (ax == 0.0 || isinf(ax)) {
+    float v = (ax == 0.0) == (y > 0.0) ? 0.0 : uintBitsToFloat(0x7f800000u);
+    return negative ? -v : v;
+  }
+  if (x < 0.0 && !whole) return uintBitsToFloat(0x7fc00000u);
+  float v = pow(ax, y);
+  return negative ? -v : v;
+}
+float b_atan2(float y, float x) { return y == 0.0 && !isnan(x) ? uintBitsToFloat((floatBitsToUint(y) & 0x80000000u) | floatBitsToUint((floatBitsToUint(x) & 0x80000000u) != 0u ? 3.141592653589793 : 0.0)) : atan(y, x); }
+uint b_a32_load(uint64_t p) { return atomicLoad(b_heap32[uint(p / 4ul)], gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquire); }
+uint b_a32_load_acq(uint64_t p) { return atomicLoad(b_heap32[uint(p / 4ul)], gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquire); }
+uint b_a32_store(uint64_t p, uint v) { atomicStore(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsRelease); return v; }
+uint b_a32_store_rel(uint64_t p, uint v) { atomicStore(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsRelease); return v; }
+uint b_a32_add(uint64_t p, uint v) { return atomicAdd(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_sub(uint64_t p, uint v) { return atomicAdd(b_heap32[uint(p / 4ul)], 0u - v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_sub_rel(uint64_t p, uint v) { return atomicAdd(b_heap32[uint(p / 4ul)], 0u - v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_and(uint64_t p, uint v) { return atomicAnd(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_or(uint64_t p, uint v) { return atomicOr(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_xor(uint64_t p, uint v) { return atomicXor(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_min(uint64_t p, uint v) { return atomicMin(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_max(uint64_t p, uint v) { return atomicMax(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_exch(uint64_t p, uint v) { return atomicExchange(b_heap32[uint(p / 4ul)], v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease); }
+uint b_a32_cmpx(uint64_t p, uint x, uint v) { return atomicCompSwap(b_heap32[uint(p / 4ul)], x, v, gl_ScopeDevice, gl_StorageSemanticsBuffer, gl_SemanticsAcquireRelease, gl_StorageSemanticsBuffer, gl_SemanticsAcquire); }
+bool b_a32_cas(uint64_t p, inout uint e, uint v) { uint old = e; e = b_a32_cmpx(p, e, v); return e == old; }
+uint b_a32_fadd(uint64_t p, uint v) { uint old = b_a32_load(p); for (;;) { uint expected = old; if (b_a32_cas(p, old, floatBitsToUint(uintBitsToFloat(old) + uintBitsToFloat(v)))) return expected; } }
+uint b_a32_load_shared(uint64_t p) { return atomicLoad(b_vote[uint(p / 4ul)], gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquire); }
+uint b_a32_load_acq_shared(uint64_t p) { return atomicLoad(b_vote[uint(p / 4ul)], gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquire); }
+uint b_a32_store_shared(uint64_t p, uint v) { atomicStore(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsRelease); return v; }
+uint b_a32_store_rel_shared(uint64_t p, uint v) { atomicStore(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsRelease); return v; }
+uint b_a32_add_shared(uint64_t p, uint v) { return atomicAdd(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_sub_shared(uint64_t p, uint v) { return atomicAdd(b_vote[uint(p / 4ul)], 0u - v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_sub_rel_shared(uint64_t p, uint v) { return atomicAdd(b_vote[uint(p / 4ul)], 0u - v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_and_shared(uint64_t p, uint v) { return atomicAnd(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_or_shared(uint64_t p, uint v) { return atomicOr(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_xor_shared(uint64_t p, uint v) { return atomicXor(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_min_shared(uint64_t p, uint v) { return atomicMin(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_max_shared(uint64_t p, uint v) { return atomicMax(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_exch_shared(uint64_t p, uint v) { return atomicExchange(b_vote[uint(p / 4ul)], v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease); }
+uint b_a32_cmpx_shared(uint64_t p, uint x, uint v) { return atomicCompSwap(b_vote[uint(p / 4ul)], x, v, gl_ScopeWorkgroup, gl_StorageSemanticsShared, gl_SemanticsAcquireRelease, gl_StorageSemanticsShared, gl_SemanticsAcquire); }
+bool b_a32_cas_shared(uint64_t p, inout uint e, uint v) { uint old = e; e = b_a32_cmpx_shared(p, e, v); return e == old; }
+uint b_a32_fadd_shared(uint64_t p, uint v) { uint old = b_a32_load_shared(p); for (;;) { uint expected = old; if (b_a32_cas_shared(p, old, floatBitsToUint(uintBitsToFloat(old) + uintBitsToFloat(v)))) return expected; } }
+float b_float_add(float a, float b) { precise float v = a + b; return v; }
+float b_float_sub(float a, float b) { precise float v = a - b; return v; }
+float b_float_mul(float a, float b) { precise float v = a * b; return v; }
+float b_float_div(float a, float b) { precise float v = a / b; return v; }

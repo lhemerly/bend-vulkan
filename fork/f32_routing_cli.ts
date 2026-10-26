@@ -2,7 +2,7 @@
 import * as fs from 'node:fs';import * as path from 'node:path';
 import {createHash} from 'node:crypto';
 import * as Bend from '../evidence/upstream/bend.ts';
-import * as Capture from './compiler/capture_f32.ts';
+import * as Capture from './compiler/capture.ts';
 import {f32Shader} from './compiler/f32_shader';
 import {routingTables,type RoutingPlan} from './compiler/routing_f32.ts';
 const [source,output]=process.argv.slice(2);const file=path.resolve(source),out=path.resolve(output);
@@ -44,5 +44,5 @@ fs.writeFileSync(out+'/caller-identity.json',JSON.stringify({schema:plan.schema,
 
 const floatPlan=JSON.stringify(emitted.plan,null,2)+"\n";fs.writeFileSync(out+"/f32-plan.json",floatPlan);fs.writeFileSync(out+"/f32.comp",f32Shader(emitted.plan));
 const digest=(s:string)=>createHash('sha256').update(s).digest('hex');
-fs.writeFileSync(out+'/source-identity.json',JSON.stringify({schema:'bend-f32-source-preparation-v1',admitted:false,source_sha256:digest(fs.readFileSync(file,'utf8')),compiler_sha256:digest(fs.readFileSync(new URL('./compiler/capture_f32.ts',import.meta.url),'utf8')),f32_plan_sha256:digest(floatPlan),routing_plan_sha256:digest(text),shader_sha256:digest(f32Shader(emitted.plan)),routing_program_sha256:digest(emitted.c),default_program_sha256:digest(baseline)},null,2)+'\n');
+fs.writeFileSync(out+'/source-identity.json',JSON.stringify({schema:'bend-f32-source-preparation-v1',admitted:false,source_sha256:digest(fs.readFileSync(file,'utf8')),compiler_sha256:digest(fs.readFileSync(new URL('./compiler/capture.ts',import.meta.url),'utf8')),f32_plan_sha256:digest(floatPlan),routing_plan_sha256:digest(text),shader_sha256:digest(f32Shader(emitted.plan)),routing_program_sha256:digest(emitted.c),default_program_sha256:digest(baseline)},null,2)+'\n');
 fs.writeFileSync(out+'/routing.c',emitted.c);

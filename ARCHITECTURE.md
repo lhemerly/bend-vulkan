@@ -1,50 +1,79 @@
-# Architecture assessment
+# General Vulkan backend
 
-Verdict: a reasonably separated experimental backend, with substantial research
-debt. It is not a clean production implementation yet. No comparative PMI review
-was performed here, so this is an assessment of Bend's actual source boundaries.
+The public build path starts with the pinned Bend checker and the shared checked
+compiler in `fork/compiler/capture.ts`. Ordinary compilation remains byte-identical
+to `evidence/upstream/comp.ts`. The F32 capture variant is now a compatibility
+wrapper around that implementation, removing the duplicated compiler body.
 
-The strongest boundary is `fork/compiler/nat_ir.ts`: explicit limits and validation
-separate accepted task/join plans from generation. `fork/compiler/emitter.ts` and
-`nat_emitter.ts` consume those plans. `fork/runtime/reference_bridge.c` keeps host
-task delivery and continuation ownership separate from shader lowering. The pinned
-checker in `evidence/upstream/bend.ts` remains distinct and unchanged.
-`fork/runtime/f32_controller.py` validates manifest, generated shader and caller
-identities before execution, while `fork/runtime/f32_worker_prepare.py` owns
-preparation. CPU reference and actual device transports are explicit alternatives.
-These are useful architecture boundaries, not conclusions inferred from test counts.
+`tools/c_to_glsl.py` extracts the device half of the compiler's C runtime and asks
+Clang for its typed AST. It lowers device pointers to byte offsets into the shared
+corpus, private pointer parameters to GLSL `inout` parameters, C conversions to
+explicit GLSL conversions, and the kernel entry to Vulkan builtins/push constants.
+Unknown AST forms fail compilation. This is a lowering of a pinned compiler's
+output, not a general-purpose C-to-GLSL compiler.
 
-The largest maintenance problem is duplicated compiler code:
-`fork/compiler/capture.ts` is 6,704 lines and `capture_f32.ts` is 6,753 lines.
-Both derive from the pinned monolithic `evidence/upstream/comp.ts`, so future
-upstream fixes and local changes need coordinated propagation. Likewise
-`routing.ts`/`routing_f32.ts`, `cpu_routing.c`/`cpu_routing_f32.c`, and Nat/F32
-controller/arena/bridge families duplicate structure. The separation makes narrow
-experiments reviewable, but it has not converged to a shared backend interface.
+The original work loop and segment switch remain the execution model. Heap banks,
+reference counts, arrays, closures, task/continuation delivery, and the grow,
+drain, and bank-compaction passes come from the same runtime as the CPU compiler.
+The compiler's FID/CID tables and static image retain their identities. Host and
+device scheduler geometry are generated together; their shared stack/ring offsets
+must match. The default uses 16 workgroups and 1024 entries per ring. Runtime
+capacity errors remain fail-stop errors, without a hidden CPU retry.
 
-`tools/cpu_remaining87_supervisor*.py`, `cpu_pending22_actual_supervisor*.py`
-and versioned admission/audit scripts preserve experiments instead of offering
-one canonical harness. Their source is retained without pretending every historic
-workflow is independently runnable. Several require excluded private receipts,
-source inventories, or host policies. The original README and CPU checkpoint
-were stale relative to the later F32 hardware runs and v19 CPU reconciliation;
-this public README is a fresh entry point.
+`fork/runtime/general.comp` supplies 32-bit atomics, device/workgroup memory
+semantics, and F32 support. Two storage-buffer views of one allocation expose
+64-bit terms and 32-bit atomic cells. The views are not `restrict`-qualified.
+Publication uses acquire/release operations and explicit memory barriers.
+Subtraction atomics, compare/exchange, floating add, and shared-memory voting
+preserve the runtime contracts. Arithmetic helpers use `precise` intermediates to
+prevent contraction. F32 remainder uses significand division and power handles
+IEEE special cases before calling device math.
 
-Reproducibility is mixed: the Rust crate has no external dependencies and a lock
-file; upstream source is vendored at a known commit; the focused F32 CPU smoke
-regenerates output and verifies ordinary C byte parity. Bun, Clang, shader tools,
-driver and Python versions are not uniformly pinned. Historical hash-bound worker
-configs cannot simply be moved and reused. The public CI checks CPU primitives
-and adapters; it does not validate Vulkan memory ordering or historical evidence.
+`fork/runtime/vulkan_host.c` selects a Vulkan 1.2 compute device and checks its
+integer, memory-model, workgroup, shared-memory, and storage-buffer capabilities.
+When a host-visible device-local memory type exists, the host and device share one
+mapped allocation. Otherwise the backend allocates the corpus in device-local
+memory and a mapped host-visible staging buffer, then copies the corpus before and
+after each command buffer. `BEND_VULKAN_FORCE_STAGING=1` (CLI `--staging`) forces
+the staging path for diagnostics; the trace reports `memory=staged` or
+`memory=host-visible`. Noncoherent host-visible memory is supported through
+flush/invalidate calls. Host-to-compute, transfer, inter-dispatch, and
+compute-to-host barriers plus a completed fence transfer ownership. Each corpus
+turn records the upstream grow/drain/compaction passes in one command buffer.
+CPU I/O resumes only after that turn completes. A fence deadline fails the process;
+it does not claim that terminating a host process can cancel a stuck GPU kernel.
 
-Remaining work includes the 190 CPU obligations, consolidation of capture/routing
-variants, a documented stable CLI and reproducible toolchain, and wider language
-and concurrent runtime support. Bounded Nat/F32 examples and prescribed finite
-task orders do not establish arbitrary heaps, ADTs, arrays, recursive parallel
-programs, multi-workgroup progress or a general Bend Vulkan runtime.
+The CLI builds in a private sibling directory and publishes the bundle atomically
+only after the compiler, translator, and SPIR-V validators succeed. It records the
+artifact hashes, build version, and cube geometry, then rejects modified artifacts,
+unsafe paths, and a conflicting `--cube-log` before running. `doctor` inspects
+prerequisites without compiling or dispatching. CPU builds need no Vulkan headers
+or shader tools. Vulkan builds can also run their CPU lane explicitly. Software
+devices require explicit opt-in and retain their device identity in diagnostics.
 
-Publication verification: focused Rust tests/Clippy, scalar adapter rejection
-tests, and the unchanged gpu_trig CPU smoke were run from the relocated source.
-No GPU experiments or benchmarks were performed. Historical CPU/GPU summaries
-were extracted from current reconciliation and device receipts, with private
-host/authorization metadata removed.
+## Validation and scope
+
+The canonical gate is `fork/tests/check_general.py`. It compares independent pinned
+CPU compilation, the shared compiler's default C, adapted CPU execution, and actual
+Vulkan execution. Both one- and two-thread host modes are checked, including
+expected failures. Device execution evidence is required, so a CPU-only run cannot
+satisfy a GPU case. The 58 general fixtures cover inputs and result types outside
+the old U32/Nat/F32 plans, and include 4096-leaf recursion, shared atomic arrays,
+result loops, and a 3D stencil. The gate also runs a representative subset with
+`--staging` to exercise the host-visible copy path. The separate CLI regression
+suite covers atomic publication after failed builds, artifact integrity, manifest
+and cube-geometry rejection, version/doctor output, and staging rejection for CPU
+builds.
+
+This implementation targets the pinned compiler's general GPU runtime. It retains
+upstream semantics and restrictions: effects and F32 text conversion are host-side,
+marked work inside CPU-owned parallel evaluation follows upstream routing, and
+heap/stack/ring limits remain finite. Device transcendental rounding may differ
+from libm. It is not a claim that every upstream test is a device program, that all
+GPU vendors/drivers have been validated, or that performance is competitive.
+
+The old bounded emitters/controllers and their negative/lifetime tests remain
+available. Their source-bound admission experiments and historical CPU ledgers
+are separate from the general backend. No old admission config is enabled or
+reused. Historical evidence counts remain historical and must not be combined
+with current general-runtime test counts.

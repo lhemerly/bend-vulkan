@@ -19,7 +19,7 @@ def prepare(directory):
     if ident.get('schema')!='bend-f32-source-preparation-v1' or ident.get('admitted') is not False:raise ValueError('checked non-admitted source required')
     for key,file in {'f32_plan':'f32-plan.json','routing_plan':'routing-plan.json','shader':'f32.comp','routing_program':'routing.c','default_program':'default.c'}.items():
         if digest(g/file)!=ident[key+'_sha256']:raise ValueError('source identity mismatch '+key)
-    if digest(ROOT/'fork/compiler/capture_f32.ts')!=ident['compiler_sha256']:raise ValueError('capture changed after source checking')
+    if digest(ROOT/'fork/compiler/capture.ts')!=ident['compiler_sha256']:raise ValueError('capture changed after source checking')
     w=d/'f32-worker';w.mkdir(exist_ok=False)
     reproduced=subprocess.run(['bun',str(ROOT/'fork/compiler/f32_regenerate.ts'),str(g/'f32-plan.json')],capture_output=True,timeout=10)
     (w/'regenerate.stderr').write_bytes(reproduced.stderr)
