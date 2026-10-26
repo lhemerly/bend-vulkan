@@ -61,7 +61,8 @@ def main():
                     lanes += [('program', 'on')]
                 for executable, gpu in lanes:
                     trace_env = dict(env, BEND_VULKAN_TRACE='1')
-                    p = subprocess.run([str(directory/executable), '--gpu', gpu, '--threads', str(threads)],
+                    p = subprocess.run([str(directory/executable), '+RTS', '--gpu', gpu,
+                                       '--threads', str(threads), '-RTS'],
                                        capture_output=True, text=True, env=trace_env, timeout=args.timeout)
                     label = f'{executable}-gpu-{gpu}-threads-{threads}'
                     (directory/(label+'.stdout')).write_text(p.stdout)

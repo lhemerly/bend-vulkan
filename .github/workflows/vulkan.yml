@@ -25,9 +25,10 @@ jobs:
           python3 fork/tests/check_general.py /tmp/bend-vulkan-contracts --software
           --case array_fork --case array_atomic_fadd --case array_redirect_race
           --case array_boxed_get --case array_poly_elem --case closure_input
-          --case closures_hof --case deep_parallel --case fork_shapes
-          --case fork_leaf_result_loop --case gpu_trig --case host_handoffs
-          --case float_corners --case float_specials --case nat_native
+          --case closures_hof --case deep_parallel --case f32_hypot_gpu
+          --case fork_shapes --case fork_leaf_result_loop --case gpu_trig
+          --case host_handoffs --case float_corners --case float_specials
+          --case nat_native
           --case nat_overflow --case fn_capture_owns --case nat_add_infix
           --case nested_tuples_records --case wide_record --case graph_bfs
           --case string_algorithms --case stencil3d

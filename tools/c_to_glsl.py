@@ -12,13 +12,21 @@ import subprocess
 from pathlib import Path
 
 
+def replace_once(source, old, new):
+    if source.count(old) != 1:
+        raise ValueError('pinned device runtime anchor mismatch: ' + old[:60])
+    return source.replace(old, new)
+
+
 def device_source(source, cube_log):
-    dialect = source[source.index('#if DEVICE\n#define LOCK'):source.index('// Types\n')]
+    dialect = source[source.index('#if DEVICE\n#define DFAR'):source.index('// Types\n')]
     source = source[source.index('// Types\n'):]
-    source = source.replace('#define CUBE      ((u64)CUBE_T * CUBE_T)',
-                            '#define CUBE      ((u64)CUBE_T << CUBE_LOG)')
-    source = source.replace('#define RING_LOG  (17 - CUBE_LOG)', '#define RING_LOG  10')
-    source = source.replace('#define RING_WORDS ((1ull << 10) + 2)', '#define RING_WORDS (RING_LEN + 2)')
+    source = replace_once(source, '#define CUBE      ((u64)CUBE_T * CUBE_T)',
+                          '#define CUBE      ((u64)CUBE_T << CUBE_LOG)')
+    source = replace_once(source, '#define RING_LEN  (1ull << (17 - CUBE_LOG))',
+                          '#define RING_LEN  (1ull << 10)')
+    source = replace_once(source, '#define RING_WORDS ((1ull << 10) + 2)',
+                          '#define RING_WORDS (RING_LEN + 2)')
     start, end = source.index('// A32\n'), source.index('// Err\n')
     atomics = '#define a32_at(H,w) ((DEV u32*)&(H)[w])\n#define a32_acq(p) bend_fence()\n#define w64_load(p) (*(p))\n'
     for space in ('DEV', 'TG'):
@@ -29,7 +37,7 @@ def device_source(source, cube_log):
         atomics += f'bool __attribute__((overloadable)) a32_cas({space} u32* p, u32* e, u32 v);\n'
         atomics += f'u32 __attribute__((overloadable)) a32_cmpx({space} u32* p, u32 x, u32 v);\n'
     source = source[:start] + atomics + source[end:]
-    source = source.replace('A32_LOOP(fadd, f32_rewrap(f32_unbox(o) + f32_unbox(v)))', '')
+    source = replace_once(source, 'A32_LOOP(fadd, f32_rewrap(f32_unbox(o) + f32_unbox(v)))', '')
     a = source.index('INLINE f32 f32_unbox(')
     b = source.index('INLINE u64 f32_to_u32(', a)
     source = source[:a] + 'f32 f32_unbox(u64 x);\nu64 f32_rewrap(f32 x);\n' + source[b:]
@@ -82,7 +90,8 @@ def size(t):
     t = re.sub(r'__attribute__\(\(address_space\(\d\)\)\)', '', t).replace('const ', '').strip()
     return {'u64': 8, 'Term': 8, 'uint64_t': 8, 'unsigned long': 8, 'unsigned long long': 8,
             'u32': 4, 'u32a': 4, 'uint32_t': 4, 'unsigned int': 4, 'int': 4,
-            'Bank': 24, 'u8': 1, 'uint8_t': 1, 'unsigned char': 1}.get(t) or unsupported_size(t)
+            'Bank': 24, 'Fid': 4, 'Cid': 4, 'u8': 1, 'uint8_t': 1, 'unsigned char': 1,
+            'u16': 2, 'uint16_t': 2, 'unsigned short': 2}.get(t) or unsupported_size(t)
 
 
 def unsupported_size(t):
@@ -98,7 +107,8 @@ def gltype(t):
              'unsigned long': 'uint64_t', 'unsigned long long': 'uint64_t', 'long': 'int64_t',
              'long long': 'int64_t', 'int': 'int', 'unsigned int': 'uint', 'u32': 'uint',
              'u32a': 'uint', 'uint32_t': 'uint', 'u8': 'uint', 'uint8_t': 'uint',
-             'unsigned char': 'uint', 'Env': 'Env', 'Bank': 'Bank'}
+             'unsigned char': 'uint', 'u16': 'uint', 'uint16_t': 'uint',
+             'unsigned short': 'uint', 'Env': 'Env', 'Bank': 'Bank', 'Fid': 'Fid', 'Cid': 'Cid'}
     if t not in table:
         raise ValueError('unsupported C type: ' + t)
     return table[t]
@@ -140,7 +150,9 @@ class Lower:
         if k == 'ArraySubscriptExpr':
             return f'({self.expr(inner[0])} + uint64_t({self.expr(inner[1])}) * {size(ctype(node))}ul)'
         if k == 'MemberExpr' and node.get('isArrow'):
-            offset = {'off': 0, 'rd': 8, 'wr': 12, 'top': 16}[node['name']]
+            offset = {'off': 0, 'rd': 8, 'wr': 12, 'top': 16,
+                      'ar': 0, 'resw': 1, 'bangs': 2, 'nofk': 3,
+                      'hot': 1, 'spine': 2}[node['name']]
             return f'({self.expr(inner[0])} + {offset}ul)'
         raise ValueError('unsupported device address: ' + k)
 
@@ -174,7 +186,11 @@ class Lower:
             value = n['value']
             return value if any(x in value.lower() for x in ('.', 'e')) else value + '.0'
         if k == 'DeclRefExpr':
-            return name(n['referencedDecl']['name'])
+            ref = n['referencedDecl']['name']
+            enums = {'ERR_RING': 1, 'ERR_TAGS': 2, 'ERR_HEAP': 3, 'ERR_FIDS': 4,
+                     'ERR_NATS': 5, 'ERR_RFCS': 6, 'ERR_DEEP': 7, 'ERR_ARRS': 8,
+                     'ERR_CNTS': 9}
+            return str(enums[ref]) + 'u' if ref in enums else name(ref)
         if k in ('ParenExpr', 'ConstantExpr'):
             return '(' + self.expr(ch[0]) + ')'
         if k in ('ImplicitCastExpr', 'CStyleCastExpr'):
@@ -253,6 +269,8 @@ class Lower:
             return gltype(base) + ''.join('[' + d + ']' for d in dims) + '(' + ','.join(entries) + ')'
         if t == 'Env':
             return 'Env(' + ', '.join(self.expr(v) for v in n.get('inner', [])) + ')'
+        if t in ('Fid', 'Cid'):
+            return t + '(' + ', '.join(self.expr(v) for v in n.get('inner', [])) + ')'
         return self.expr(n)
 
     def decl(self, n, local=False):
@@ -260,6 +278,9 @@ class Lower:
         ch = n.get('inner', [])
         ch = [c for c in ch if not c['kind'].endswith('Attr')]
         if '[' in t:
+            init = next((x for x in reversed(ch) if x['kind'] == 'InitListExpr'), None)
+            if '[]' in t and init is not None:
+                t = t.replace('[]', f"[{len(init.get('inner', []))}]", 1)
             base = t[:t.index('[')].strip()
             dims = re.findall(r'\[(\d+)\]', t)
             if local:

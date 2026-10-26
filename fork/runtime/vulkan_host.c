@@ -32,6 +32,7 @@ static VkCommandPool vk_commands;
 static VkCommandBuffer vk_command;
 static VkFence vk_fence;
 static u64 vk_dispatches;
+static u64* vk_host;
 
 static void vk_cleanup(void) {
   if (getenv("BEND_VULKAN_TRACE") && vk_physical)
@@ -238,7 +239,9 @@ static void gpu_load(u64 bytes) {
   VK_CHECK(vkCreateFence(vk_device, &fci, NULL, &vk_fence));
 }
 
-static void gpu_kernel(u32 pass, u32 groups) {
+static void gpu_kernel(u32 pass, u32 at) {
+  u32 groups = ((u32*)(vk_host + H_GROUPS))[at * 3];
+  if (groups == 0) return;
   vkCmdPushConstants(vk_command, vk_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof pass, &pass);
   vkCmdDispatch(vk_command, groups, 1, 1);
   VkMemoryBarrier barrier={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
@@ -248,7 +251,8 @@ static void gpu_kernel(u32 pass, u32 groups) {
   vk_dispatches++;
 }
 
-static void gpu_pass(u32 frontier) {
+static void gpu_pass(u64* H) {
+  vk_host = H;
   VkMappedMemoryRange range={.sType=VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
     .memory=vk_staged ? vk_staging_memory : vk_memory, .size=VK_WHOLE_SIZE};
   if (!vk_coherent) VK_CHECK(vkFlushMappedMemoryRanges(vk_device, 1, &range));
@@ -273,7 +277,7 @@ static void gpu_pass(u32 frontier) {
       .srcAccessMask=VK_ACCESS_HOST_WRITE_BIT, .dstAccessMask=VK_ACCESS_SHADER_READ_BIT|VK_ACCESS_SHADER_WRITE_BIT};
     vkCmdPipelineBarrier(vk_command, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 1, &pre, 0, NULL, 0, NULL);
   }
-  gpu_run(frontier);
+  gpu_run();
   if (vk_staged) {
     VkMemoryBarrier download={.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER,
       .srcAccessMask=VK_ACCESS_SHADER_WRITE_BIT, .dstAccessMask=VK_ACCESS_TRANSFER_READ_BIT};
@@ -290,7 +294,7 @@ static void gpu_pass(u32 frontier) {
   }
   VK_CHECK(vkEndCommandBuffer(vk_command));
   VkSubmitInfo submit={.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO, .commandBufferCount=1, .pCommandBuffers=&vk_command};
-  if (getenv("BEND_VULKAN_TRACE")) fprintf(stderr, "Vulkan submit frontier=%u\n", frontier);
+  if (getenv("BEND_VULKAN_TRACE")) fprintf(stderr, "Vulkan submit frontier=%u\n", (u32)H[H_FRONT]);
   VK_CHECK(vkQueueSubmit(vk_queue, 1, &submit, vk_fence));
   VK_CHECK(vkWaitForFences(vk_device, 1, &vk_fence, VK_TRUE, 300000000000ull));
   if (!vk_coherent) VK_CHECK(vkInvalidateMappedMemoryRanges(vk_device, 1, &range));
